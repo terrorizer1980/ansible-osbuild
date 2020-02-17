@@ -22,10 +22,10 @@
   debug:
     var: composer_cli_test.stdout
 
-# - name: Run composer tests
-#   shell: /usr/libexec/tests/osbuild-composer/osbuild-tests
-#   register: composer_tests
+- name: Run composer tests
+  shell: /usr/libexec/tests/osbuild-composer/osbuild-tests
+  register: composer_tests
 
-# - name: Show output
-#   debug:
-#     var: composer_cli_test.stdout
+- name: Show output
+  debug:
+    var: composer_cli_test.stdout
