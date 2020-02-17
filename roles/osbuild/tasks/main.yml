@@ -1,0 +1,31 @@
+---
+
+- include_tasks: install.yml
+
+- name: Enable services
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop:
+    - cockpit.socket
+    - osbuild-composer.socket
+
+# composer-cli seems to exit with a return code of 1 when everything is okay.
+- name: Test composer-cli
+  command: composer-cli status show
+  register: composer_cli_test
+  failed_when:
+    - '"API server status" not in composer_cli_test.stdout'
+
+- name: Show output
+  debug:
+    var: composer_cli_test
+
+- name: Run composer tests
+  shell: /usr/libexec/tests/osbuild-composer/osbuild-tests
+  register: composer_tests
+
+- name: Show output
+  debug:
+    var: composer_cli_test.stdout

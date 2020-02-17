@@ -1,0 +1,84 @@
+---
+
+# - name: Clone osbuild-composer from GitHub
+#   git:
+#     repo: https://github.com/osbuild/osbuild-composer
+#     dest: /opt/osbuild-composer
+#     version: master
+#     force: yes
+#     clone: yes
+#     update: yes
+#     track_submodules: no
+#   register: git_composer
+
+# NOTE(mhayden): Testing with jkozol's F31 patches until they are merged.
+- name: Clone osbuild-composer from GitHub
+  git:
+    repo: https://github.com/jkozol/osbuild-composer
+    dest: /opt/osbuild-composer
+    version: distroFedora31
+    force: yes
+    clone: yes
+    update: yes
+    track_submodules: no
+  register: git_composer
+
+- name: Clone osbuild from GitHub
+  git:
+    repo: https://github.com/osbuild/osbuild
+    dest: /opt/osbuild
+    version: master
+    force: yes
+    clone: yes
+    update: yes
+    track_submodules: no
+  register: git_osbuild
+
+- name: Install requirements for building osbuild-composer
+  command: dnf -y builddep golang-github-osbuild-composer.spec
+  args:
+    chdir: /opt/osbuild-composer
+    warn: no
+  register: composer_builddep
+  until: composer_builddep is success
+  retries: 5
+  changed_when:
+    - '"Nothing to do." not in composer_builddep.stdout'
+
+- name: Install requirements for building osbuild
+  command: dnf -y builddep osbuild.spec
+  args:
+    chdir: /opt/osbuild
+    warn: no
+  register: osbuild_builddep
+  until: osbuild_builddep is success
+  retries: 5
+  changed_when:
+    - '"Nothing to do." not in osbuild_builddep.stdout'
+
+- name: Build osbuild-composer RPMs
+  shell: make rpm
+  args:
+    chdir: /opt/osbuild-composer
+  when:
+    - git_composer is changed
+
+- name: Build osbuild RPMs
+  shell: make rpm
+  args:
+    chdir: /opt/osbuild
+  when:
+    - git_osbuild is changed
+
+- name: Get a list of RPMs build for osbuild-composer
+  command: "find /opt/osbuild-composer/output -name '*.rpm'"
+  register: composer_packages
+
+- name: Get a list of RPMs build for osbuild-composer
+  command: "find /opt/osbuild/output -name '*.rpm'"
+  register: osbuild_packages
+
+- name: Install RPMs
+  package:
+    name: "{{ composer_packages.stdout_lines + osbuild_packages.stdout_lines }}"
+    state: latest
