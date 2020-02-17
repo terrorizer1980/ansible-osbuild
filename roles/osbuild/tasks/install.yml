@@ -1,15 +1,17 @@
 ---
 
-# - name: Clone osbuild-composer from GitHub
-#   git:
-#     repo: https://github.com/osbuild/osbuild-composer
-#     dest: /opt/osbuild-composer
-#     version: master
-#     force: yes
-#     clone: yes
-#     update: yes
-#     track_submodules: no
-#   register: git_composer
+- name: Clone osbuild-composer from GitHub
+  git:
+    repo: https://github.com/osbuild/osbuild-composer
+    dest: /opt/osbuild-composer
+    version: master
+    force: yes
+    clone: yes
+    update: yes
+    track_submodules: no
+  register: git_composer_master
+  when:
+    - ansible_distribution == 'RedHat'
 
 # NOTE(mhayden): Testing with jkozol's F31 patches until they are merged.
 - name: Clone osbuild-composer from GitHub
@@ -21,7 +23,9 @@
     clone: yes
     update: yes
     track_submodules: no
-  register: git_composer
+  register: git_composer_fedora31
+  when:
+    - ansible_distribution == 'Fedora'
 
 - name: Clone osbuild from GitHub
   git:
@@ -61,7 +65,7 @@
   args:
     chdir: /opt/osbuild-composer
   when:
-    - git_composer is changed
+    - git_composer_master is changed or git_composer_fedora31 is changed
 
 - name: Build osbuild RPMs
   shell: make rpm
