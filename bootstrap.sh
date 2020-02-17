@@ -18,4 +18,4 @@ EOF
 
 # Run the playbook
 export ANSIBLE_CONFIG=${BASEDIR}/ansible.cfg
-ansible-playbook -i $($BASEDIR}/hosts.ini ${$BASEDIR}/playbook.yml
+ansible-playbook -i ${$BASEDIR}/hosts.ini ${$BASEDIR}/playbook.yml
