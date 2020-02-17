@@ -4,6 +4,6 @@ required_packages:
   - cockpit-composer
   - dnf-plugins-core
   - git
-  - htop
+  # - htop
   - make
   - rpm-build
