@@ -25,6 +25,16 @@
 - name: Run composer tests
   shell: /usr/libexec/tests/osbuild-composer/osbuild-tests
   register: composer_tests
+  async: 1200
+  poll: 0
+
+- name: Wait for composer tests to finish
+  async_status:
+    jid: "{{ composer_tests.ansible_job_id }}"
+  register: job_result
+  until: job_result is finished
+  retries: 300
+  delay: 15
 
 - name: Show output
   debug:
