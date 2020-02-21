@@ -33,6 +33,17 @@
   until: package_install is success
   retries: 5
 
+- name: Set global gitconfig parameters
+  git_config:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    scope: global
+  loop:
+    - name: user.name
+      value: "Integration Testing"
+    - name: user.email
+      value: "nobody@redhat.com"
+
 - name: Clone osbuild-composer from GitHub
   git:
     repo: https://github.com/osbuild/osbuild-composer
@@ -43,6 +54,21 @@
     update: yes
     track_submodules: no
   register: git_composer
+
+- name: WORKAROUND - Use osbuild master branch
+  command: git checkout master
+  args:
+    chdir: /opt/osbuild-composer/osbuild
+    warn: no
+
+- name: WORKAROUND - commit osbuild submodule as master
+  command: "{{ item }}"
+  args:
+    chdir: /opt/osbuild-composer
+    warn: no
+  loop:
+    - git add osbuild
+    - git commit -m "Update osbuild to latest master"
 
 - name: Install requirements for building osbuild-composer and osbuild
   command: |
