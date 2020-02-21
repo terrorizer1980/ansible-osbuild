@@ -45,8 +45,6 @@
   register: composer_builddep
   until: composer_builddep is success
   retries: 5
-  changed_when:
-    - '"Nothing to do." not in composer_builddep.stdout'
 
 - name: Install requirements for building osbuild
   command: dnf -y builddep osbuild.spec
@@ -56,8 +54,6 @@
   register: osbuild_builddep
   until: osbuild_builddep is success
   retries: 5
-  changed_when:
-    - '"Nothing to do." not in osbuild_builddep.stdout'
 
 - name: Build osbuild-composer RPMs
   shell: make rpm
