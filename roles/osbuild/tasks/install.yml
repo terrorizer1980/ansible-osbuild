@@ -34,8 +34,6 @@
     update: yes
     track_submodules: no
   register: git_composer
-  when:
-    - ansible_distribution == 'RedHat'
 
 - name: Install requirements for building osbuild-composer
   command: dnf -y builddep golang-github-osbuild-composer.spec
