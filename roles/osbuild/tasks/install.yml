@@ -35,22 +35,16 @@
     track_submodules: no
   register: git_composer
 
-- name: Install requirements for building osbuild-composer
-  command: dnf -y builddep golang-github-osbuild-composer.spec
+- name: Install requirements for building osbuild-composer and osbuild
+  command: |
+    dnf -y builddep \
+      /opt/osbuild-composer/golang-github-osbuild-composer.spec \
+      /opt/osbuild-composer/osbuild/osbuild.spec
   args:
     chdir: /opt/osbuild-composer
     warn: no
   register: composer_builddep
   until: composer_builddep is success
-  retries: 5
-
-- name: Install requirements for building osbuild
-  command: dnf -y builddep osbuild.spec
-  args:
-    chdir: /opt/osbuild-composer/osbuild
-    warn: no
-  register: osbuild_builddep
-  until: osbuild_builddep is success
   retries: 5
 
 - name: Build osbuild-composer RPMs
