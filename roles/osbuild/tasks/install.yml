@@ -9,6 +9,15 @@
   when:
     - ansible_distribution == 'Fedora'
 
+- name: Disable install_weak_deps on Fedora
+  ini_file:
+    path: /etc/dnf/dnf.conf
+    section: main
+    option: install_weak_deps
+    value: "0"
+  when:
+    - ansible_distribution == 'Fedora'
+
 - name: Ensure all packages are updated
   package:
     name: "*"
