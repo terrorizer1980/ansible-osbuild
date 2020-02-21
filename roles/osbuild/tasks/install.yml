@@ -47,7 +47,7 @@
 - name: Install requirements for building osbuild
   command: dnf -y builddep osbuild.spec
   args:
-    chdir: /opt/osbuild
+    chdir: /opt/osbuild-composer/osbuild
     warn: no
   register: osbuild_builddep
   until: osbuild_builddep is success
