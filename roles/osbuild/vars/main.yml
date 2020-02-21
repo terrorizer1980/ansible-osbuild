@@ -1,2 +1,6 @@
-required_packages_rhel8:
-  - go-toolset
+required_packages:
+  - cockpit-composer
+  - dnf-plugins-core
+  - git
+  - make
+  - rpm-build

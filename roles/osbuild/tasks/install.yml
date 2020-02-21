@@ -1,5 +1,29 @@
 ---
 
+- name: Enable fastestmirror on Fedora
+  ini_file:
+    path: /etc/dnf/dnf.conf
+    section: main
+    option: fastestmirror
+    value: "1"
+  when:
+    - ansible_distribution == 'Fedora'
+
+- name: Ensure all packages are updated
+  package:
+    name: "*"
+    state: latest
+  register: package_updates
+  until: package_updates is success
+  retries: 5
+
+- name: Install required packages
+  package:
+    name: "{{ required_packages }}"
+  register: package_install
+  until: package_install is success
+  retries: 5
+
 - name: Clone osbuild-composer from GitHub
   git:
     repo: https://github.com/osbuild/osbuild-composer

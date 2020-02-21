@@ -5,5 +5,4 @@
     - vars.yml
   become: yes
   roles:
-    - common
     - osbuild

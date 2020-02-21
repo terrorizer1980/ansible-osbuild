@@ -1,9 +1,0 @@
-epel8_rpm: https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-
-required_packages:
-  - cockpit-composer
-  - dnf-plugins-core
-  - git
-  # - htop
-  - make
-  - rpm-build
