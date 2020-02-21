@@ -1,0 +1,7 @@
+# These variables override default values for variables in the roles.
+
+# Set the version of osbuild-composer to clone.
+osbuild_composer_branch: master
+
+# Should we force the RPMs to be built even if the repo did not change?
+force_build: no
