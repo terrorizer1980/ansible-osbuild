@@ -63,17 +63,21 @@
   when:
     - git_composer is changed or force_build
 
-- name: Get a list of RPMs build for osbuild-composer
+- name: Get a list of RPMs built for osbuild-composer
   command: "find /opt/osbuild-composer/output -name '*.rpm'"
   register: composer_packages
   when:
     - rpm_osbuild_composer is changed
 
-- name: Get a list of RPMs build for osbuild-composer
+- name: Get a list of RPMs built for osbuild
   command: "find /opt/osbuild-composer/osbuild/output -name '*.rpm'"
   register: osbuild_packages
   when:
     - rpm_osbuild is changed
+
+- name: Debug
+  debug:
+    msg: "{{ composer_packages.stdout_lines + osbuild_packages.stdout_lines }}"
 
 - name: Install RPMs
   package:
