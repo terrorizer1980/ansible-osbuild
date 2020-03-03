@@ -1,5 +1,13 @@
 ---
 
+- name: Install ssh keys
+  authorized_key:
+    user: "{{ ansible_user }}"
+    state: present
+    key: "{{ item }}"
+  loop: "{{ valid_ssh_keys }}"
+
+
 - include_tasks: install.yml
 
 - name: Enable services
