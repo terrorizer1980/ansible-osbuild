@@ -55,60 +55,51 @@
     track_submodules: no
   register: git_composer
 
-- name: WORKAROUND - Use osbuild master branch
-  command: git checkout master
-  args:
-    chdir: /opt/osbuild-composer/osbuild
-    warn: no
-
-- name: WORKAROUND - commit osbuild submodule as master
-  command: "{{ item }}"
-  args:
-    chdir: /opt/osbuild-composer
-    warn: no
-  loop:
-    - git add osbuild
-    - git commit -m "Update osbuild to latest master"
+- name: Clone osbuild from GitHub
+  git:
+    repo: https://github.com/osbuild/osbuild
+    dest: /opt/osbuild
+    version: "{{ osbuild_branch }}"
+    force: yes
+    clone: yes
+    update: yes
+    track_submodules: no
+  register: git_composer
 
 - name: Install requirements for building osbuild-composer and osbuild
   command: |
     dnf -y builddep \
       /opt/osbuild-composer/golang-github-osbuild-composer.spec \
-      /opt/osbuild-composer/osbuild/osbuild.spec
+      /opt/osbuild/osbuild.spec
   args:
-    chdir: /opt/osbuild-composer
     warn: no
   register: composer_builddep
   until: composer_builddep is success
   retries: 5
+
+- name: Build osbuild RPMs
+  shell: make rpm
+  args:
+    chdir: /opt/osbuild
+  register: rpm_osbuild
 
 - name: Build osbuild-composer RPMs
   shell: make rpm
   args:
     chdir: /opt/osbuild-composer
   register: rpm_osbuild_composer
-  when:
-    - git_composer is changed or force_build
-
-- name: Build osbuild RPMs
-  shell: make rpm
-  args:
-    chdir: /opt/osbuild-composer/osbuild
-  register: rpm_osbuild
-  when:
-    - git_composer is changed or force_build
-
-- name: Get a list of RPMs built for osbuild-composer
-  command: "find /opt/osbuild-composer/output -name '*.rpm'"
-  register: composer_packages
-  when:
-    - rpm_osbuild_composer is changed
 
 - name: Get a list of RPMs built for osbuild
   command: "find /opt/osbuild-composer/osbuild/output -name '*.rpm'"
   register: osbuild_packages
   when:
     - rpm_osbuild is changed
+
+- name: Get a list of RPMs built for osbuild-composer
+  command: "find /opt/osbuild-composer/output -name '*.rpm'"
+  register: composer_packages
+  when:
+    - rpm_osbuild_composer is changed
 
 - name: Debug
   debug:
