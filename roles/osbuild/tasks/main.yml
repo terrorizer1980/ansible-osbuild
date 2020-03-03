@@ -5,7 +5,7 @@
 - name: Enable services
   service:
     name: "{{ item }}"
-    state: started
+    state: restarted
     enabled: yes
   loop:
     - cockpit.socket
