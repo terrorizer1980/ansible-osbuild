@@ -66,7 +66,7 @@
     track_submodules: no
   register: git_composer
 
-- name: Install requirements for building osbuild-composer and osbuild
+- name: Install build dependencies
   command: |
     dnf -y builddep \
       /opt/osbuild-composer/golang-github-osbuild-composer.spec \
@@ -100,10 +100,6 @@
   register: composer_packages
   when:
     - rpm_osbuild_composer is changed
-
-- name: Debug
-  debug:
-    msg: "{{ composer_packages.stdout_lines + osbuild_packages.stdout_lines }}"
 
 - name: Install RPMs
   package:
