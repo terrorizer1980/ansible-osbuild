@@ -58,8 +58,8 @@
 
     - name: Fetch composer test log files
       fetch:
-        src: "/tmp/composer_tests.log"
-        dest: "{{ CI_PROJECT_DIR }}/composer_tests.log"
+        src: "/tmp/composer_tests.log.xz"
+        dest: "{{ CI_PROJECT_DIR }}"
 
 - name: Check for successful test run
   fail:
