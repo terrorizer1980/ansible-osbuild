@@ -36,6 +36,7 @@
   register: composer_tests
   async: 1200
   poll: 0
+  no_log: yes
 
 - name: Wait for composer tests to finish
   async_status:
@@ -44,6 +45,7 @@
   until: job_result is finished
   retries: 300
   delay: 15
+  no_log: yes
 
 - name: Write composer stdout to file
   copy:
