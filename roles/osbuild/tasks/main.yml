@@ -37,27 +37,29 @@
     dest: /usr/local/bin/run_composer_tests.sh
     mode: "0755"
 
-- name: Run composer tests
-  command: /usr/local/bin/run_composer_tests.sh
-  register: composer_tests
-  async: 1200
-  poll: 0
+- name: Composer tests
+  block:
 
-- name: Wait for composer tests to finish
-  async_status:
-    jid: "{{ composer_tests.ansible_job_id }}"
-  register: job_result
-  until: job_result is finished
-  retries: 300
-  delay: 15
+    - name: Run composer tests
+      command: /usr/local/bin/run_composer_tests.sh
+      register: composer_tests
+      async: 1200
+      poll: 0
 
-- name: Fetch composer test log files
-  fetch:
-    src: "/tmp/composer_tests.log"
-    dest: "{{ CI_PROJECT_DIR }}/composer_tests.log"
-  loop:
-    - stdout
-    - stderr
+    - name: Wait for composer tests to finish
+      async_status:
+        jid: "{{ composer_tests.ansible_job_id }}"
+      register: job_result
+      until: job_result is finished
+      retries: 300
+      delay: 15
+
+  always:
+
+    - name: Fetch composer test log files
+      fetch:
+        src: "/tmp/composer_tests.log"
+        dest: "{{ CI_PROJECT_DIR }}/composer_tests.log"
 
 - name: Check for successful test run
   fail:
