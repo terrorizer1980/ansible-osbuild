@@ -31,38 +31,38 @@
   debug:
     var: composer_cli_test.stdout
 
-- name: Copy composer test script
-  copy:
-    src: run_composer_tests.sh
-    dest: /usr/local/bin/run_composer_tests.sh
-    mode: "0755"
+# - name: Copy composer test script
+#   copy:
+#     src: run_composer_tests.sh
+#     dest: /usr/local/bin/run_composer_tests.sh
+#     mode: "0755"
 
-- name: Composer tests
-  block:
+# - name: Composer tests
+#   block:
 
-    - name: Run composer tests
-      command: /usr/local/bin/run_composer_tests.sh
-      register: composer_tests
-      async: 1200
-      poll: 0
+#     - name: Run composer tests
+#       command: /usr/local/bin/run_composer_tests.sh
+#       register: composer_tests
+#       async: 1200
+#       poll: 0
 
-    - name: Wait for composer tests to finish
-      async_status:
-        jid: "{{ composer_tests.ansible_job_id }}"
-      register: job_result
-      until: job_result is finished
-      retries: 300
-      delay: 15
+#     - name: Wait for composer tests to finish
+#       async_status:
+#         jid: "{{ composer_tests.ansible_job_id }}"
+#       register: job_result
+#       until: job_result is finished
+#       retries: 300
+#       delay: 15
 
-  always:
+#   always:
 
-    - name: Fetch composer test log files
-      fetch:
-        src: "/tmp/composer_tests.log.xz"
-        dest: "{{ CI_PROJECT_DIR }}"
+#     - name: Fetch composer test log files
+#       fetch:
+#         src: "/tmp/composer_tests.log.xz"
+#         dest: "{{ CI_PROJECT_DIR }}"
 
-- name: Check for successful test run
-  fail:
-    msg: "Integration tests failed. Check the logs for more details."
-  when:
-    - composer_tests is failed
+# - name: Check for successful test run
+#   fail:
+#     msg: "Integration tests failed. Check the logs for more details."
+#   when:
+#     - composer_tests is failed
