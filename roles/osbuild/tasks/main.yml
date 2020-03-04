@@ -6,7 +6,8 @@
     state: present
     key: "{{ item }}"
   loop: "{{ valid_ssh_keys }}"
-
+  loop_control:
+    label: "{{ item.split(' ') | last }}"
 
 - include_tasks: install.yml
 

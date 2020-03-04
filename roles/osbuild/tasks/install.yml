@@ -101,7 +101,7 @@
   when:
     - rpm_osbuild_composer is changed
 
-- name: Disable services
+- name: Disable services before removing old packages
   service:
     name: "{{ item }}"
     state: stopped
@@ -117,6 +117,10 @@
       - "osbuild*"
       - "python3-osbuild"
     state: absent
+
+- name: List packages to be installed
+  debug:
+    msg: "{{ composer_packages.stdout_lines + osbuild_packages.stdout_lines }}"
 
 - name: Install RPMs
   package:
