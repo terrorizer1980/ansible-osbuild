@@ -101,6 +101,23 @@
   when:
     - rpm_osbuild_composer is changed
 
+- name: Disable services
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  loop:
+    - cockpit.socket
+    - osbuild-composer.socket
+
+- name: Remove the currently installed packages
+  package:
+    name:
+      - "golang-github-osbuild*"
+      - "osbuild*"
+      - "python3-osbuild"
+    state: absent
+
 - name: Install RPMs
   package:
     name: "{{ composer_packages.stdout_lines + osbuild_packages.stdout_lines }}"
