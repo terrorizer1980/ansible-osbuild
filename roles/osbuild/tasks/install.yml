@@ -96,7 +96,7 @@
     - rpm_osbuild is changed
 
 - name: Get a list of RPMs built for osbuild-composer
-  command: "find /opt/osbuild-composer/output -name '*.rpm'"
+  command: "find /opt/osbuild/output -name '*.rpm'"
   register: composer_packages
   when:
     - rpm_osbuild_composer is changed
