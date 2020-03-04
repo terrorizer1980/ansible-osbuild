@@ -31,12 +31,16 @@
   debug:
     var: composer_cli_test.stdout
 
+- name: Copy composer test script
+  copy:
+    src: run_composer_tests.sh
+    dest: /usr/local/bin/run_composer_tests.sh
+
 - name: Run composer tests
-  shell: /usr/libexec/tests/osbuild-composer/osbuild-tests
+  command: /usr/local/bin/run_composer_tests.sh
   register: composer_tests
   async: 1200
   poll: 0
-  no_log: yes
 
 - name: Wait for composer tests to finish
   async_status:
@@ -45,22 +49,11 @@
   until: job_result is finished
   retries: 300
   delay: 15
-  no_log: yes
-
-- name: Write composer stdout to file
-  copy:
-    dest: /tmp/composer_tests_stdout.txt
-    content: "{{ composer_tests.stdout }}"
-
-- name: Write composer stderr to file
-  copy:
-    dest: /tmp/composer_tests_stderr.txt
-    content: "{{ composer_tests.stderr }}"
 
 - name: Fetch composer test log files
   fetch:
-    src: "/tmp/composer_tests_{{ item }}.txt"
-    dest: "{{ CI_PROJECT_DIR }}/composer_tests_{{ item }}.txt"
+    src: "/tmp/composer_tests.log"
+    dest: "{{ CI_PROJECT_DIR }}/composer_tests.log"
   loop:
     - stdout
     - stderr
