@@ -31,44 +31,40 @@
   debug:
     var: composer_cli_test.stdout
 
-# - name: Run composer tests
-#   shell: /usr/libexec/tests/osbuild-composer/osbuild-tests
-#   register: composer_tests
-#   async: 1200
-#   poll: 0
+- name: Run composer tests
+  shell: /usr/libexec/tests/osbuild-composer/osbuild-tests
+  register: composer_tests
+  async: 1200
+  poll: 0
 
-# - name: Wait for composer tests to finish
-#   async_status:
-#     jid: "{{ composer_tests.ansible_job_id }}"
-#   register: job_result
-#   until: job_result is finished
-#   retries: 300
-#   delay: 15
+- name: Wait for composer tests to finish
+  async_status:
+    jid: "{{ composer_tests.ansible_job_id }}"
+  register: job_result
+  until: job_result is finished
+  retries: 300
+  delay: 15
 
-# - name: Show output
-#   debug:
-#     var: composer_tests.stdout
+- name: Write composer stdout to file
+  copy:
+    dest: /tmp/composer_tests_stdout.txt
+    content: "{{ composer_tests.stdout }}"
 
-# - name: Write composer stdout to file
-#   copy:
-#     dest: /tmp/composer_tests_stdout.txt
-#     content: "{{ composer_tests.stdout }}"
+- name: Write composer stderr to file
+  copy:
+    dest: /tmp/composer_tests_stderr.txt
+    content: "{{ composer_tests.stderr }}"
 
-# - name: Write composer stderr to file
-#   copy:
-#     dest: /tmp/composer_tests_stderr.txt
-#     content: "{{ composer_tests.stderr }}"
+- name: Fetch composer test log files
+  fetch:
+    src: "/tmp/composer_tests_{{ item }}.txt"
+    dest: "{{ CI_PROJECT_DIR }}/composer_tests_{{ item }}.txt"
+  loop:
+    - stdout
+    - stderr
 
-# - name: Fetch composer test log files
-#   fetch:
-#     src: "/tmp/composer_tests_{{ item }}.txt"
-#     dest: "composer_tests_{{ item }}.txt"
-#   loop:
-#     - stdout
-#     - stderr
-
-# - name: Check for successful test run
-#   fail:
-#     msg: "Integration tests failed. Check the logs for more details."
-#   when:
-#     - composer_tests is failed
+- name: Check for successful test run
+  fail:
+    msg: "Integration tests failed. Check the logs for more details."
+  when:
+    - composer_tests is failed
