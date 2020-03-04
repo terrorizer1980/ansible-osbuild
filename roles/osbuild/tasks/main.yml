@@ -35,6 +35,7 @@
   copy:
     src: run_composer_tests.sh
     dest: /usr/local/bin/run_composer_tests.sh
+    mode: "0755"
 
 - name: Run composer tests
   command: /usr/local/bin/run_composer_tests.sh
