@@ -44,22 +44,30 @@
     - name: user.email
       value: "nobody@redhat.com"
 
-- name: Clone osbuild-composer from GitHub
-  git:
-    repo: https://github.com/osbuild/osbuild-composer
-    dest: /opt/osbuild-composer
-    version: "{{ osbuild_composer_branch }}"
-    force: yes
-    clone: yes
-    update: yes
-    track_submodules: no
-  register: git_composer
+- name: Ensure cloned repo directories are completely clean
+  file:
+    path: "/opt/{{ item }}"
+    state: absent
+  loop:
+    - osbuild
+    - osbuild-composer
 
 - name: Clone osbuild from GitHub
   git:
     repo: https://github.com/osbuild/osbuild
     dest: /opt/osbuild
     version: "{{ osbuild_branch }}"
+    force: yes
+    clone: yes
+    update: yes
+    track_submodules: no
+  register: git_composer
+
+- name: Clone osbuild-composer from GitHub
+  git:
+    repo: https://github.com/osbuild/osbuild-composer
+    dest: /opt/osbuild-composer
+    version: "{{ osbuild_composer_branch }}"
     force: yes
     clone: yes
     update: yes
