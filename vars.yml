@@ -1,10 +1,14 @@
 # These variables override default values for variables in the roles.
 
 # Set the version of osbuild-composer to clone.
-osbuild_composer_branch: master
+osbuild_composer_repo: https://github.com/osbuild/osbuild-composer
+osbuild_composer_version: master
+osbuild_composer_ref: refs/heads/master
 
 # Set the version of osbuild to clone.
-osbuild_branch: master
+osbuild_repo: https://github.com/osbuild/osbuild
+osbuild_version: master
+osbuild_ref: refs/heads/master
 
 # SSH keys to add to the instances.
 valid_ssh_keys:

@@ -54,9 +54,10 @@
 
 - name: Clone osbuild from GitHub
   git:
-    repo: https://github.com/osbuild/osbuild
+    repo: "{{ osbuild_repo }}"
     dest: /opt/osbuild
-    version: "{{ osbuild_branch }}"
+    version: "{{ osbuild_version }}"
+    refspec: "{{ osbuild_ref }}"
     force: yes
     clone: yes
     update: yes
@@ -65,9 +66,10 @@
 
 - name: Clone osbuild-composer from GitHub
   git:
-    repo: https://github.com/osbuild/osbuild-composer
+    repo: "{{ osbuild_composer_repo }}"
     dest: /opt/osbuild-composer
-    version: "{{ osbuild_composer_branch }}"
+    version: "{{ osbuild_composer_version }}"
+    refspec: "{{ osbuild_composer_ref }}"
     force: yes
     clone: yes
     update: yes
