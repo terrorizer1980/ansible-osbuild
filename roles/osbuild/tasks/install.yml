@@ -122,7 +122,7 @@
     - cockpit.socket
     - osbuild-composer.socket
   when:
-    - osbuild in packages_installed.stdout_lines
+    - "osbuild" in packages_installed.stdout_lines
 
 - name: Remove the currently installed packages
   package:
@@ -132,7 +132,7 @@
       - "python3-osbuild"
     state: absent
   when:
-    - osbuild in packages_installed.stdout_lines
+    - "osbuild" in packages_installed.stdout_lines
 
 - name: List packages to be installed
   debug:
