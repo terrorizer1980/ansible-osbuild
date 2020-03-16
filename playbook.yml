@@ -6,7 +6,7 @@
   tasks:
 
     - name: Ensure python requirements are installed
-      raw: dnf -y install python3-dnf
+      raw: dnf -y install python3 python3-dnf
 
 - hosts: test_instances
   vars_files:
