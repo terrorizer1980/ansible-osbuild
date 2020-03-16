@@ -109,23 +109,25 @@
   when:
     - rpm_osbuild_composer is changed
 
-- name: Disable services before removing old packages
-  service:
-    name: "{{ item }}"
-    state: stopped
-    enabled: no
-  loop:
-    - cockpit.socket
-    - osbuild-composer.socket
-  ignore_errors: yes
+- name: Prepare for upgrade
+  block:
 
-- name: Remove the currently installed packages
-  package:
-    name:
-      - "golang-github-osbuild*"
-      - "osbuild*"
-      - "python3-osbuild"
-    state: absent
+    - name: Disable services before removing old packages
+      service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: no
+      loop:
+        - cockpit.socket
+        - osbuild-composer.socket
+
+    - name: Remove the currently installed packages
+      package:
+        name:
+          - "golang-github-osbuild*"
+          - "osbuild*"
+          - "python3-osbuild"
+        state: absent
 
 - name: List packages to be installed
   debug:
