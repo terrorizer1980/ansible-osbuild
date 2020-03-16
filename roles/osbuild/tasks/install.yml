@@ -130,7 +130,7 @@
       - "golang-github-osbuild*"
       - "osbuild*"
       - "python3-osbuild"
-  state: absent
+    state: absent
   when:
     - osbuild in packages_installed.stdout_lines
 
