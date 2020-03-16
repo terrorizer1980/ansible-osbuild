@@ -117,6 +117,7 @@
   loop:
     - cockpit.socket
     - osbuild-composer.socket
+  ignore_errors: yes
 
 - name: Remove the currently installed packages
   package:
