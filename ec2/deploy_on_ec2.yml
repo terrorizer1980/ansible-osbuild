@@ -166,7 +166,7 @@
           host: "{{ item.public_ip_address }}"
           port: 22
           search_regex: OpenSSH
-          delay: 10
+          delay: 5
         loop: "{{ ec2.instances }}"
         loop_control:
           label: "{{ item.tags.Name }}"
