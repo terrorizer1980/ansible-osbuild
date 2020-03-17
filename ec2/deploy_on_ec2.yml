@@ -198,3 +198,6 @@
           name: "{{ ansible_ssh_user }}"
           password: "{{ password_hashes[ansible_ssh_user] }}"
           update_password: always
+
+      - name: Set the hostname
+        command: "hostnamectl set-hostname {{ inventory_hostname | replace('_', '') | replace('.', '-') }}"
