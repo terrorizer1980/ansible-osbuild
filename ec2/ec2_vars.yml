@@ -26,6 +26,7 @@ instance_type: m5a.xlarge
 # Example: m5a.large without spot is $0.086/hr, with spot is $0.02/hr.
 use_spot_instances: yes
 
+# Comment out any instances that you do not want to deploy.
 instances_to_deploy:
   - name: "fedora31.x86_64"
     ami_filters:
@@ -48,3 +49,8 @@ instances_to_deploy:
       "name": "Fedora-Cloud-Base-Rawhide*"
       "virtualization-type": hvm
     user_data: "{{ fedora_user_data }}"
+
+# Set the default password to match the default username.
+password_hashes:
+  "fedora": "$6$NAGA2hokAzys8r6O$woN3nQDy.8dykubJY5STQmVsiQt40FQiwTfxHsjmrc6LGU0F2NiR.Xq0/rqRFY5ywHzHIwnFognAzbI2yVd3i1"
+  "cloud-user": "$6$4NoiMXLSuKgYaQ/2$xlvgej/fnceUXjseJDWYQu1YI0ApaexYCVvs8xOCs6onxTRO7Yj3blD3IB/Axa4imdiFYkJHbg050oOFrGAa30"

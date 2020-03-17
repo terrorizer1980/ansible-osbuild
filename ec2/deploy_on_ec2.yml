@@ -176,6 +176,10 @@
     become: yes
     tasks:
 
+      - name: Include EC2 variables
+        include_vars:
+          file: "{{ playbook_dir }}/ec2_vars.yml"
+
       - name: Ensure cloud-init has finished
         raw: test -f /var/lib/cloud/instance/boot-finished
         retries: 60
@@ -188,3 +192,9 @@
         register: ansible_reqs
         until: ansible_reqs is success
         retries: 4
+
+      - name: Set a password for the default user
+        user:
+          name: "{{ ansible_ssh_user }}"
+          password: "{{ password_hashes[ansible_ssh_user] }}"
+          update_password: always
