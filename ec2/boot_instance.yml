@@ -1,0 +1,55 @@
+---
+
+- name: "Get latest AMI for {{ instance_data.name }}"
+  ec2_ami_info:
+    region: "{{ aws_region }}"
+    profile: "{{ aws_profile }}"
+    filters: "{{ instance_data.ami_filters }}"
+  register: latest_ami
+
+- name: Check to see if an instance already exists
+  ec2_instance_info:
+    region: "{{ aws_region }}"
+    profile: "{{ aws_profile }}"
+    filters:
+      "tag:Name": "osbuild.personal.{{ ansible_user_id }}.{{ instance_data.name }}"
+      "instance-state-name": ["pending", "running"]
+  register: existing_instance_checks
+
+- name: Write the user data to a file temporarily
+  copy:
+    dest: "{{ tempdir.path }}/userdata"
+    content: "{{ instance_data.user_data }}"
+  when:
+    - not existing_instance_checks.instances
+
+- name: Attempt to boot instances
+  block:
+
+    - name: "Boot {{ instance_data.name }} instance with awscli"
+      command: |
+        aws ec2 run-instances \
+        --associate-public-ip-address \
+        --block-device-mappings DeviceName=/dev/sda1,Ebs={DeleteOnTermination=true,VolumeSize=50,VolumeType=gp2,Encrypted=false} \
+        {% if instance_type.startswith('t3') %}
+        --credit-specification CpuCredits=standard \
+        {% endif %}
+        --image-id {{ (latest_ami.images | sort(attribute='creation_date') | last)['image_id'] }} \
+        {% if use_spot_instances %}
+        --instance-market-options MarketType=spot,SpotOptions={MaxPrice=1.00,SpotInstanceType=one-time,InstanceInterruptionBehavior=terminate} \
+        {% endif %}
+        --instance-type {{ instance_type }} \
+        --key-name osbuild.personal.{{ ansible_user_id }} \
+        --security-group-ids {{ ec2_security_group.group_id }} \
+        --subnet-id {{ (ec2_subnets.results | shuffle | first).subnet.id }} \
+        --tag-specifications ResourceType=instance,Tags=[{Key=Name,Value='osbuild.personal.{{ ansible_user_id }}.{{ instance_data.name }}'}] \
+        --user-data "file://{{ tempdir.path }}/userdata" \
+      environment:
+        AWS_PROFILE: "{{ aws_profile }}"
+        AWS_REGION: "{{ aws_region }}"
+      register: aws_boot
+      until: aws_boot is success
+      retries: 5
+      delay: 5
+      when:
+        - not existing_instance_checks.instances

@@ -1,0 +1,190 @@
+---
+
+  - hosts: localhost
+    tasks:
+
+      - name: Check for awscli
+        block:
+          - name: Check if awscli is installed
+            command: aws --version
+            changed_when: false
+        rescue:
+          - name: Exit if awscli is not present
+            fail:
+              msg: |
+                The AWS command line client is not installed.
+                It must be installed first.
+
+                docs: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html
+
+      - name: Include EC2 variables
+        include_vars:
+          file: "{{ playbook_dir }}/ec2_vars.yml"
+
+      - name: Create temporary directory
+        file:
+          path: "/tmp/osbuild.personal.{{ ansible_user_id }}"
+          state: directory
+        register: tempdir
+
+      - name: Get availability zones in region
+        aws_az_info:
+          region: "{{ aws_region }}"
+          profile: "{{ aws_profile }}"
+        register: ec2_zones
+
+      - name: Create VPC for osbuild deployment
+        ec2_vpc_net:
+          name: "osbuild.personal.{{ ansible_user_id }}"
+          cidr_block: "10.0.0.0/16"
+          region: "{{ aws_region }}"
+          profile: "{{ aws_profile }}"
+          tags:
+            Name: "osbuild.personal.{{ ansible_user_id }}"
+        register: ec2_vpc
+
+      - name: Add an internet gateway for the VPC
+        ec2_vpc_igw:
+          vpc_id: "{{ ec2_vpc.vpc.id }}"
+          profile: "{{ aws_profile }}"
+          tags:
+            Name: "osbuild.personal.{{ ansible_user_id }}"
+        register: ec2_igw
+
+      - name: Create subnets for VPC in each AZ
+        ec2_vpc_subnet:
+          vpc_id: "{{ ec2_vpc.vpc.id }}"
+          profile: "{{ aws_profile }}"
+          cidr: "10.0.{{ index }}.0/24"
+          az: "{{ item }}"
+          tags:
+            Name: "osbuild.personal.{{ ansible_user_id }}.{{ item }}"
+        loop: "{{ ec2_zones.availability_zones | map(attribute='zone_name') | list }}"
+        loop_control:
+          index_var: index
+        register: ec2_subnets
+
+      - name: Create route table associations for public traffic
+        ec2_vpc_route_table:
+          vpc_id: "{{ ec2_vpc.vpc.id }}"
+          region: "{{ aws_region }}"
+          profile: "{{ aws_profile }}"
+          purge_routes: no
+          purge_subnets: no
+          subnets: "{{ ec2_subnets.results | map(attribute='subnet.id') | list }}"
+          routes:
+            - dest: 0.0.0.0/0
+              gateway_id: "{{ ec2_igw.gateway_id }}"
+
+      - name: Get external IP address
+        uri:
+          url: "https://ipv4.icanhazip.com"
+          method: GET
+          return_content: yes
+        register: external_ip_address
+
+      - name: Create security group for instances
+        ec2_group:
+          name: "osbuild.personal.{{ ansible_user_id }}"
+          description: "Personal osbuild deployment security group"
+          vpc_id: "{{ ec2_vpc.vpc.id }}"
+          region: "{{ aws_region }}"
+          profile: "{{ aws_profile }}"
+          rules:
+            - proto: all
+              cidr_ip: "{{ external_ip_address.content | trim }}/32"
+          tags:
+            Name: "osbuild.personal.{{ ansible_user_id }}"
+        register: ec2_security_group
+
+      - name: Create SSH keypair
+        openssh_keypair:
+          path: "{{ tempdir.path }}/boot"
+          size: 4096
+          force: no
+        register: keypair_content
+
+      - name: Create a new EC2 keypair
+        ec2_key:
+          name: "osbuild.personal.{{ ansible_user_id }}"
+          region: "{{ aws_region }}"
+          profile: "{{ aws_profile }}"
+          key_material: "{{ keypair_content.public_key }}"
+          force: yes
+        register: boot_keypair
+
+      - name: Boot instances
+        include_tasks: boot_instance.yml
+        loop: "{{ instances_to_deploy }}"
+        loop_control:
+          label: item.name
+          loop_var: instance_data
+
+      - name: Wait for instances to reach 'running' state
+        ec2_instance_info:
+          region: "{{ aws_region }}"
+          profile: "{{ aws_profile }}"
+          filters:
+            "tag:Name": "osbuild.personal.{{ ansible_user_id }}.*"
+            "instance-state-name": "running"
+        register: ec2
+        until:
+          - ec2.instances
+          - ec2.instances | map(attribute='state.name') | list | unique == ['running']
+        retries: 60
+        delay: 15
+
+      - name: Add hosts to group
+        add_host:
+          name: "{{ item.tags.Name }}"
+          hostname: "{{ item.public_ip_address }}"
+          ansible_host: "{{ item.public_ip_address }}"
+          ansible_user: "fedora"
+          ansible_ssh_private_key_file: "{{ tempdir.path }}/boot"
+          aws_region: "{{ aws_region }}"
+          group: test_instances
+        loop: "{{ ec2.instances }}"
+        loop_control:
+          label: "{{ item.tags.Name }}"
+
+      - name: Write instances to hosts.ini file
+        ini_file:
+          path: "{{ tempdir.path }}/hosts.ini"
+          section: test_instances
+          option: >
+            {{ item.tags.Name }}
+            ansible_host={{ item.public_ip_address }}
+            ansible_user=fedora
+            ansible_ssh_private_key_file={{ tempdir.path }}/boot
+          allow_no_value: yes
+        loop: "{{ ec2.instances }}"
+        loop_control:
+          label: "{{ item.tags.Name }}"
+
+      - name: Wait for instances to respond to ssh
+        wait_for:
+          host: "{{ item.public_ip_address }}"
+          port: 22
+          search_regex: OpenSSH
+          delay: 10
+        loop: "{{ ec2.instances }}"
+        loop_control:
+          label: "{{ item.tags.Name }}"
+
+  - hosts: test_instances
+    user: fedora
+    become: yes
+    tasks:
+
+      - name: Ensure cloud-init has finished
+        raw: test -f /var/lib/cloud/instance/boot-finished
+        retries: 60
+        register: cloud_init_check
+        changed_when: false
+        until: cloud_init_check is success
+
+      - name: Install Ansible requirements
+        raw: dnf -y install --best python3 python3-dnf
+        register: ansible_reqs
+        until: ansible_reqs is success
+        retries: 4
