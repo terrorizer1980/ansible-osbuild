@@ -21,9 +21,6 @@
   loop_control:
     label: "{{ item.fact }}"
 
-- debug:
-    var: osbuild_composer_repo
-
 - name: Install ssh keys
   authorized_key:
     user: "{{ ansible_user }}"
