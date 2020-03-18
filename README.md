@@ -13,6 +13,7 @@ infrastructure on EC2.
 Start by [installing the AWS CLI version 2]:
 
 ```text
+dnf install unzip
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
 sudo ./aws/install
@@ -31,6 +32,14 @@ aws s3 ls
 aws sts get-caller-identity
 ```
 
+### Install Ansible
+
+Install some packages for Ansible and its support for EC2:
+
+```text
+dnf install ansible python3-boto3
+```
+
 ### Configure EC2 variables
 
 EC2 variables are stored in [`ec2/ec2_vars.yml`] and they control how the EC2 infrastructure is provisioned. The most important ones to review are:
@@ -43,10 +52,10 @@ EC2 variables are stored in [`ec2/ec2_vars.yml`] and they control how the EC2 in
   the first step. It provides a hint to Ansible and the AWS CLI about where
   they should look to find credentials for EC2 APIs.
 
-* `instance_type`: Select an instance type that provides the performance you
-  want without causing you to spend more money than you want to. Review the
-  EC2 [on-demand pricing] as well as the [spot instance pricing] before making
-  changes.
+* `instance_types`: *Review the EC2 [on-demand pricing] as well as the [spot
+  instance pricing] before making changes.* You can update the list of
+  instance types for each architecture depending on your needs. The most
+  preferred instance types should be at the top of the list.
 
 * `use_spot_instances`: Spot instances save money by using excess capacity in
   EC2 for a much lower price. However, AWS can terminate the instance at any

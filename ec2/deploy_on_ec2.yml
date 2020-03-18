@@ -1,6 +1,8 @@
 ---
 
   - hosts: localhost
+    vars:
+      ansible_connection: local
     tasks:
 
       - name: Check for awscli
@@ -47,6 +49,7 @@
         ec2_vpc_igw:
           vpc_id: "{{ ec2_vpc.vpc.id }}"
           profile: "{{ aws_profile }}"
+          region: "{{ aws_region }}"
           tags:
             Name: "osbuild.personal.{{ ansible_user_id }}"
         register: ec2_igw
@@ -55,6 +58,7 @@
         ec2_vpc_subnet:
           vpc_id: "{{ ec2_vpc.vpc.id }}"
           profile: "{{ aws_profile }}"
+          region: "{{ aws_region }}"
           cidr: "10.0.{{ index }}.0/24"
           az: "{{ item }}"
           tags:
@@ -117,9 +121,9 @@
         include_tasks: boot_instance.yml
         loop: "{{ instances_to_deploy }}"
         loop_control:
-          label: item.name
+          label: "{{ instance_data.name }}"
           loop_var: instance_data
-        when: item.enabled
+        when: instance_data.enabled
 
       - name: Wait for instances to reach 'running' state
         ec2_instance_info:
@@ -131,6 +135,7 @@
         register: ec2
         until:
           - ec2.instances
+          - ec2.instances | length == (instances_to_deploy | selectattr('enabled')) | list | length
           - ec2.instances | map(attribute='state.name') | list | unique == ['running']
         retries: 60
         delay: 15
@@ -147,6 +152,11 @@
         loop: "{{ ec2.instances }}"
         loop_control:
           label: "{{ item.tags.Name }}"
+
+      - name: Delete existing hosts.ini file
+        file:
+          path: "{{ tempdir.path }}/hosts.ini"
+          state: absent
 
       - name: Write instances to hosts.ini file
         ini_file:

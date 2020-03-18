@@ -3,7 +3,7 @@
 aws_profile: personal
 
 # Choose an AWS region for your infrastructure.
-aws_region: us-east-2
+aws_region: us-east-1
 
 # The owner of the Fedora image in AWS. (Don't change this.)
 fedora_ami_owner_id: "125523088429"
@@ -17,8 +17,14 @@ fedora_user_data: |
   dnf -y upgrade --exclude kernel-core --exclude kernel
   dnf -y install python3-dnf python3
 
-# Which instance type to use. (m5a.large is a good place to start)
-instance_type: m5a.xlarge
+# Which instance types to use. Sorted from most preferred to least preferred.
+instance_types:
+  aarch64:
+    - a1.xlarge
+    - a1.2xlarge
+  x86_64:
+    - m5a.xlarge
+    - m5a.2xlarge
 
 # Use spot instances to save money. AWS can terminate these at any time and
 # you may run into situations where no spot capacity is available.
@@ -34,24 +40,55 @@ instances_to_deploy:
       "architecture": "x86_64"
       "name": "Fedora-Cloud-Base-31*"
       "virtualization-type": hvm
-    user_data: "{{ fedora_user_data }}"
+    arch: x86_64
     enabled: yes
+    user_data: "{{ fedora_user_data }}"
   - name: "fedora32.x86_64"
     ami_filters:
       "owner-id": "{{ fedora_ami_owner_id }}"
       "architecture": "x86_64"
       "name": "Fedora-Cloud-Base-32*"
       "virtualization-type": hvm
-    user_data: "{{ fedora_user_data }}"
+    arch: x86_64
     enabled: yes
+    user_data: "{{ fedora_user_data }}"
   - name: "fedora33.x86_64"
     ami_filters:
       "owner-id": "{{ fedora_ami_owner_id }}"
       "architecture": "x86_64"
       "name": "Fedora-Cloud-Base-Rawhide*"
       "virtualization-type": hvm
-    user_data: "{{ fedora_user_data }}"
+    arch: x86_64
     enabled: yes
+    user_data: "{{ fedora_user_data }}"
+  - name: "fedora31.aarch64"
+    ami_filters:
+      "owner-id": "{{ fedora_ami_owner_id }}"
+      "architecture": "arm64"
+      "name": "Fedora-Cloud-Base-31*"
+      "virtualization-type": hvm
+    arch: aarch64
+    enabled: yes
+    user_data: "{{ fedora_user_data }}"
+  - name: "fedora32.aarch64"
+    ami_filters:
+      "owner-id": "{{ fedora_ami_owner_id }}"
+      "architecture": "arm64"
+      "name": "Fedora-Cloud-Base-32*"
+      "virtualization-type": hvm
+    arch: aarch64
+    enabled: yes
+    user_data: "{{ fedora_user_data }}"
+  - name: "fedora33.aarch64"
+    ami_filters:
+      "owner-id": "{{ fedora_ami_owner_id }}"
+      "architecture": "arm64"
+      "name": "Fedora-Cloud-Base-Rawhide*"
+      "virtualization-type": hvm
+    arch: aarch64
+    enabled: yes
+    user_data: "{{ fedora_user_data }}"
+
 
 # Set the default password to match the default username.
 password_hashes:
