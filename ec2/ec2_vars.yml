@@ -35,6 +35,7 @@ instances_to_deploy:
       "name": "Fedora-Cloud-Base-31*"
       "virtualization-type": hvm
     user_data: "{{ fedora_user_data }}"
+    enabled: yes
   - name: "fedora32.x86_64"
     ami_filters:
       "owner-id": "{{ fedora_ami_owner_id }}"
@@ -42,6 +43,7 @@ instances_to_deploy:
       "name": "Fedora-Cloud-Base-32*"
       "virtualization-type": hvm
     user_data: "{{ fedora_user_data }}"
+    enabled: yes
   - name: "fedora33.x86_64"
     ami_filters:
       "owner-id": "{{ fedora_ami_owner_id }}"
@@ -49,6 +51,7 @@ instances_to_deploy:
       "name": "Fedora-Cloud-Base-Rawhide*"
       "virtualization-type": hvm
     user_data: "{{ fedora_user_data }}"
+    enabled: yes
 
 # Set the default password to match the default username.
 password_hashes:

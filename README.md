@@ -31,11 +31,52 @@ aws s3 ls
 aws sts get-caller-identity
 ```
 
-### Edit the EC2 variables
+### Configure EC2 variables
 
-All of the deployment variables are in `ec2/ec2_vars.yml`. Adjust any
-variables to match your requirements and comment out any instances you do not
-want to deploy.
+EC2 variables are stored in [`ec2/ec2_vars.yml`] and they control how the EC2 infrastructure is provisioned. The most important ones to review are:
+
+* `aws_region`: The `us-east-2` region is chosen by default, but you may
+  prefer a region that is geographically closer to you. Keep in mind that some
+  regions are *much more expensive* than others.
+
+* `aws_profile`: This should match with the AWS CLI profile that you set up in
+  the first step. It provides a hint to Ansible and the AWS CLI about where
+  they should look to find credentials for EC2 APIs.
+
+* `instance_type`: Select an instance type that provides the performance you
+  want without causing you to spend more money than you want to. Review the
+  EC2 [on-demand pricing] as well as the [spot instance pricing] before making
+  changes.
+
+* `use_spot_instances`: Spot instances save money by using excess capacity in
+  EC2 for a much lower price. However, AWS can terminate the instance at any
+  time, no instance can last longer than 24 hours, and there are some
+  situations where no spot instance capacity is available in certain
+  availability zones. The playbooks will retry spot instance requests when
+  capacity is not available, but there's still a change that your request will
+  not be fulfilled. Set this variable to `no` if you want to use on-demand
+  instances and be guaranteed an instance (at a much higher price).
+
+* `instances_to_deploy`: This dictionary controls which instances will be
+  deployed. If you want to disable any of the deployments, adjust the
+  `enabled` key to `no` for each instance that you do not want to provision.
+
+[`ec2/ec2_vars.yml`]: blob/master/ec2/ec2_vars.yml
+[on-demand pricing]: https://aws.amazon.com/ec2/pricing/on-demand/
+[spot instance pricing]: https://aws.amazon.com/ec2/spot/pricing/
+
+### Configure the deployment variables
+
+You will find deployment variables inside [`vars.yml`].
+
+First, ensure your ssh key is included in `valid_ssh_keys`. These ssh keys
+will be deployed to the instances to allow password-less ssh connectivity.
+
+By default, the code from the master branches of the main repos is deployed.
+You can adjust this by uncommenting the variables in the variables files and
+providing your own repository URL, refspec, or version (SHA or tag).
+
+[`vars.yml`]: blob/master/vars.yml
 
 ### Run the deployment
 

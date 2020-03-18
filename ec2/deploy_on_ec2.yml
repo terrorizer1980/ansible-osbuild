@@ -119,6 +119,7 @@
         loop_control:
           label: item.name
           loop_var: instance_data
+        when: item.enabled
 
       - name: Wait for instances to reach 'running' state
         ec2_instance_info:
