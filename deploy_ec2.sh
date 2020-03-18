@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Get the current user.
 CURRENT_USER=$(whoami)
