@@ -1,26 +1,5 @@
 ---
 
-- name: Apply any repo, version, or refspec overrides
-  set_fact:
-    "{{ item.fact }}": "{{ lookup('env', item.env) }}"
-  when:
-    - lookup('env', item.env) != ''
-  loop:
-    - fact: osbuild_composer_repo
-      env: OSBUILD_COMPOSER_REPO
-    - fact: osbuild_composer_version
-      env: OSBUILD_COMPOSER_VERSION
-    - fact: osbuild_composer_ref
-      env: OSBUILD_COMPOSER_REF
-    - fact: osbuild_repo
-      env: OSBUILD_REPO
-    - fact: osbuild_version
-      env: OSBUILD_VERSION
-    - fact: osbuild_ref
-      env: OSBUILD_REF
-  loop_control:
-    label: "{{ item.fact }}"
-
 - name: Install ssh keys
   authorized_key:
     user: "{{ ansible_user }}"
