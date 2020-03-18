@@ -113,6 +113,8 @@
 
 - name: Gather a list of currently installed packages
   command: rpm -qa
+  args:
+    warn: no
   register: packages_installed
 
 - name: Disable services before removing old packages
