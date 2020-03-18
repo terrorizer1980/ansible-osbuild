@@ -5,7 +5,7 @@
 {% for instance_type in instance_types[instance_data.arch] %}
   {% for subnet_id in ec2_subnets.results | map(attribute='subnet.id') %}
 
-aws ec2 run-instances \
+aws --profile=${AWS_PROFILE} --region=${AWS_REGION} ec2 run-instances \
     --associate-public-ip-address \
     --block-device-mappings DeviceName=/dev/sda1,Ebs=\{DeleteOnTermination=true,VolumeSize=50,VolumeType=gp2,Encrypted=false\} \
 {% if instance_type.startswith('t3') %}
