@@ -4,7 +4,8 @@ set -euxo pipefail
 BASEDIR=/tmp/ansible-osbuild
 
 # Install some basic packages.
-dnf -y install git python3 python3-pip python3-pip-wheel
+dnf -y install git python3 python3-pip 
+pip3 install wheel
 pip3 install ansible
 
 # Clone the latest testing code
