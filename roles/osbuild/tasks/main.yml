@@ -1,5 +1,11 @@
 ---
 
+- name: Set a password for the default user
+  user:
+    name: "{{ ansible_ssh_user }}"
+    password: "{{ password_hashes[ansible_ssh_user] }}"
+    update_password: always
+
 - name: Install ssh keys
   authorized_key:
     user: "{{ ansible_user }}"
@@ -9,7 +15,7 @@
   loop_control:
     label: "{{ item.split(' ') | last }}"
 
-- include_tasks: install.yml
+- import_tasks: install.yml
 
 - name: Enable services
   service:

@@ -68,7 +68,7 @@ instances_to_deploy:
       "name": "Fedora-Cloud-Base-31*"
       "virtualization-type": hvm
     arch: aarch64
-    enabled: yes
+    enabled: no
     user_data: "{{ fedora_user_data }}"
   - name: "fedora32.aarch64"
     ami_filters:
@@ -77,7 +77,7 @@ instances_to_deploy:
       "name": "Fedora-Cloud-Base-32*"
       "virtualization-type": hvm
     arch: aarch64
-    enabled: yes
+    enabled: no
     user_data: "{{ fedora_user_data }}"
   - name: "fedora33.aarch64"
     ami_filters:
@@ -86,7 +86,7 @@ instances_to_deploy:
       "name": "Fedora-Cloud-Base-Rawhide*"
       "virtualization-type": hvm
     arch: aarch64
-    enabled: yes
+    enabled: no
     user_data: "{{ fedora_user_data }}"
 
 

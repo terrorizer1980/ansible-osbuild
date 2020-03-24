@@ -2,6 +2,8 @@ required_packages:
   - cockpit-composer
   - dnf-plugins-core
   - git
+  - libappstream-glib
   - make
+  - npm
   - rpm-build
   - xz
