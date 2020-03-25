@@ -90,7 +90,7 @@
 - name: Install build dependencies
   command: |
     dnf -y builddep \
-      /opt/osbuild-composer/golang-github-osbuild-composer.spec \
+      /opt/osbuild-composer/osbuild-composer.spec \
       /opt/osbuild/osbuild.spec
   args:
     warn: no
@@ -157,7 +157,7 @@
   package:
     name:
       - cockpit-composer
-      - "golang-github-osbuild*"
+      - "osbuild-composer*"
       - "osbuild*"
       - "python3-osbuild"
     state: absent
