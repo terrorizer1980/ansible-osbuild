@@ -172,3 +172,9 @@
   package:
     name: "{{ composer_packages.stdout_lines + osbuild_packages.stdout_lines + cockpit_packages.stdout_lines }}"
     state: latest
+
+- name: Force upgrade the cockpit-composer RPM
+  command: "rpm -Uvh {{ item }}"
+  args:
+    warn: no
+  loop: "{{ cockpit_packages.stdout_lines }}"
