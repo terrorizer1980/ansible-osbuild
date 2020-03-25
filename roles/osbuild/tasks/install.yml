@@ -59,7 +59,7 @@
     repo: "{{ osbuild_repo | default('https://github.com/osbuild/osbuild') }}"
     dest: /opt/osbuild
     version: "{{ osbuild_version | default('master') }}"
-    refspec: "{{ osbuild_ref | default('refs/heads/master') }}"
+    refspec: "{{ osbuild_ref | default('+refs/pull/*:refs/heads/*') }}"
     force: yes
     clone: yes
     update: yes
@@ -70,7 +70,7 @@
     repo: "{{ osbuild_composer_repo | default('https://github.com/osbuild/osbuild-composer') }}"
     dest: /opt/osbuild-composer
     version: "{{ osbuild_composer_version | default('master') }}"
-    refspec: "{{ osbuild_composer_ref | default('refs/heads/master') }}"
+    refspec: "{{ osbuild_composer_ref | default('+refs/pull/*:refs/heads/*') }}"
     force: yes
     clone: yes
     update: yes
@@ -81,7 +81,7 @@
     repo: "{{ cockpit_composer_repo | default('https://github.com/weldr/cockpit-composer') }}"
     dest: /opt/cockpit-composer
     version: "{{ cockpit_composer_version | default('master') }}"
-    refspec: "{{ cockpit_composer_ref | default('refs/heads/master') }}"
+    refspec: "{{ cockpit_composer_ref | default('+refs/pull/*:refs/heads/*') }}"
     force: yes
     clone: yes
     update: yes
