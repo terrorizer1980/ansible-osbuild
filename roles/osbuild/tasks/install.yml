@@ -113,7 +113,7 @@
   async: 300
   poll: 0
 
-- name: Check sync status
+- name: Wait for builds to finish
   async_status:
     jid: "{{ async_result_item.ansible_job_id }}"
   loop: "{{ rpm_build.results }}"
