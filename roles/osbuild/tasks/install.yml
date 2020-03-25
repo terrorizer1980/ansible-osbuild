@@ -174,7 +174,7 @@
     state: latest
 
 - name: Force upgrade the cockpit-composer RPM
-  command: "rpm -Uvh {{ item }}"
+  command: "rpm -Uvh --force {{ item }}"
   args:
     warn: no
   loop: "{{ cockpit_packages.stdout_lines }}"
