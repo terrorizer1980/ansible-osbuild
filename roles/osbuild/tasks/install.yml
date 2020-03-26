@@ -24,7 +24,6 @@
     state: latest
   register: package_updates
   until: package_updates is success
-  changed_when: "'Nothing to do' not in package_updates.stdout"
   retries: 5
 
 - name: Install required packages
