@@ -101,6 +101,8 @@
 
 - name: Build RPMs
   command: make -C "{{ item.dir }}" rpm
+  args:
+    chdir: "{{ item.dir }}"
   loop:
     - project: osbuild
       dir: /opt/osbuild
