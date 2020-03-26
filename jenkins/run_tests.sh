@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euxo pipefail
 
+export JUNIT_OUTPUT_DIR=junit/
+
 dnf -y install ansible python3-ansible-lint
 
 # Rule 403: Package installs should not use latest
