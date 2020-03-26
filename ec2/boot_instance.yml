@@ -34,5 +34,6 @@
   environment:
     AWS_PROFILE: "{{ aws_profile }}"
     AWS_REGION: "{{ aws_region }}"
+  changed_when: true
   when:
     - not existing_instance_checks.instances

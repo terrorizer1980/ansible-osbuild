@@ -32,6 +32,7 @@
   register: composer_cli_test
   failed_when:
     - '"API server status" not in composer_cli_test.stdout'
+  changed_when: false
 
 - name: Show output
   debug:

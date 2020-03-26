@@ -24,6 +24,7 @@
     state: latest
   register: package_updates
   until: package_updates is success
+  changed_when: "'Nothing to do' not in package_updates.stdout"
   retries: 5
 
 - name: Install required packages
@@ -97,9 +98,10 @@
   register: composer_builddep
   until: composer_builddep is success
   retries: 5
+  changed_when: "'Nothing to do' in composer_builddep.stdout"
 
 - name: Build RPMs
-  shell: make -C "{{ item.dir }}" rpm
+  command: make -C "{{ item.dir }}" rpm
   loop:
     - project: osbuild
       dir: /opt/osbuild
@@ -112,6 +114,7 @@
   register: rpm_build
   async: 300
   poll: 0
+  changed_when: true
 
 - name: Wait for builds to finish
   async_status:
@@ -127,20 +130,24 @@
 - name: Get a list of RPMs built for osbuild
   command: "find /opt/osbuild/rpmbuild/RPMS/ -name '*.rpm'"
   register: osbuild_packages
+  changed_when: false
 
 - name: Get a list of RPMs built for osbuild-composer
   command: "find /opt/osbuild-composer/rpmbuild/RPMS/ -name '*.rpm'"
   register: composer_packages
+  changed_when: false
 
 - name: Get a list of RPMs built for cockpit-composer
   command: "find /opt/cockpit-composer/ -name '*.rpm'"
   register: cockpit_packages
+  changed_when: false
 
 - name: Gather a list of currently installed packages
   command: rpm -qa
   args:
     warn: no
   register: packages_installed
+  changed_when: false
 
 - name: Disable services before removing old packages
   service:
@@ -172,9 +179,11 @@
   package:
     name: "{{ composer_packages.stdout_lines + osbuild_packages.stdout_lines + cockpit_packages.stdout_lines }}"
     state: latest
+  changed_when: true
 
 - name: Force upgrade the cockpit-composer RPM
   command: "rpm -Uvh --force {{ item }}"
   args:
     warn: no
   loop: "{{ cockpit_packages.stdout_lines }}"
+  changed_when: true
