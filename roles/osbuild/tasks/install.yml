@@ -24,7 +24,6 @@
     state: latest
   register: package_updates
   until: package_updates is success
-  changed_when: "'Nothing to do' not in package_updates.stdout"
   retries: 5
 
 - name: Install required packages
@@ -102,6 +101,8 @@
 
 - name: Build RPMs
   command: make -C "{{ item.dir }}" rpm
+  args:
+    chdir: "{{ item.dir }}"
   loop:
     - project: osbuild
       dir: /opt/osbuild
@@ -124,7 +125,7 @@
     loop_var: "async_result_item"
   register: async_poll_results
   until: async_poll_results.finished
-  retries: 30
+  retries: 60
   delay: 10
 
 - name: Get a list of RPMs built for osbuild
