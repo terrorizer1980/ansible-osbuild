@@ -1,8 +1,7 @@
 #!/bin/bash
 set -euxo pipefail
 
-env | sort
-echo $WORKSPACE
+uname -a
 
 export JUNIT_OUTPUT_DIR=junit/
 
