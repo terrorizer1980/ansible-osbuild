@@ -1,8 +1,7 @@
 #!/bin/bash
 set -euxo pipefail
 
-env | sort
-echo $WORKSPACE
+uname -a
 
 export JUNIT_OUTPUT_DIR=junit/
 
@@ -13,4 +12,4 @@ echo -e "[test_instances]\nlocalhost ansible_connection=local" > hosts.ini
 ansible-playbook -i hosts.ini playbook.yml
 
 # Get the integration test logs.
-cp /tmp/composer_tests.log.xz $WORKSPACE
+# cp /tmp/composer_tests.log.xz $WORKSPACE
