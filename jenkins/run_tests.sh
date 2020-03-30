@@ -12,4 +12,4 @@ echo -e "[test_instances]\nlocalhost ansible_connection=local" > hosts.ini
 ansible-playbook -i hosts.ini playbook.yml
 
 # Get the integration test logs.
-cp /tmp/composer_tests.log.xz $WORKSPACE
+# cp /tmp/composer_tests.log.xz $WORKSPACE
