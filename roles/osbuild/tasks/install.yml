@@ -188,3 +188,12 @@
     warn: no
   loop: "{{ cockpit_packages.stdout_lines }}"
   changed_when: true
+
+- name: Enable services
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: yes
+  loop:
+    - cockpit.socket
+    - osbuild-composer.socket
