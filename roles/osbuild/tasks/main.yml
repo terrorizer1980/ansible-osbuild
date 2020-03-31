@@ -17,60 +17,7 @@
 
 - import_tasks: install.yml
 
-- name: Enable services
-  service:
-    name: "{{ item }}"
-    state: restarted
-    enabled: yes
-  loop:
-    - cockpit.socket
-    - osbuild-composer.socket
+- import_tasks: test_api_server.yml
 
-# composer-cli seems to exit with a return code of 1 when everything is okay.
-- name: Test composer-cli
-  command: composer-cli status show
-  register: composer_cli_test
-  failed_when:
-    - '"API server status" not in composer_cli_test.stdout'
-  changed_when: false
-
-- name: Show output
-  debug:
-    var: composer_cli_test.stdout
-
-# - name: Copy composer test script
-#   copy:
-#     src: run_composer_tests.sh
-#     dest: /usr/local/bin/run_composer_tests.sh
-#     mode: "0755"
-
-# - name: Composer tests
-#   block:
-
-#     - name: Run composer tests
-#       command: /usr/local/bin/run_composer_tests.sh
-#       register: composer_tests
-#       async: 1200
-#       poll: 0
-
-#     - name: Wait for composer tests to finish
-#       async_status:
-#         jid: "{{ composer_tests.ansible_job_id }}"
-#       register: job_result
-#       until: job_result is finished
-#       retries: 300
-#       delay: 15
-
-#   always:
-
-#     - name: Fetch composer test log files
-#       fetch:
-#         src: /tmp/composer_tests.log.xz
-#         dest: /tmp/
-#         flat: yes
-
-# - name: Check for successful test run
-#   fail:
-#     msg: "Integration tests failed. Check the logs for more details."
-#   when:
-#     - composer_tests is failed
+- import_tasks: test_integration.yml
+  when: run_integration_tests | bool
