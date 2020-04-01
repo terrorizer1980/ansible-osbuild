@@ -196,6 +196,6 @@
     state: started
     enabled: yes
   loop:
-    - cockpit.socket
     - osbuild-rcm.socket
     - osbuild-composer.socket
+    - cockpit.socket
