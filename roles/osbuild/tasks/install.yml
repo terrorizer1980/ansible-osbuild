@@ -158,6 +158,7 @@
   loop:
     - cockpit.socket
     - osbuild-composer.socket
+    - osbuild-composer.service
     - osbuild-rcm.socket
   when:
     - '"osbuild" in packages_installed.stdout_lines'
