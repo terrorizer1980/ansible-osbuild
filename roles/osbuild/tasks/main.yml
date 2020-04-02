@@ -1,5 +1,34 @@
 ---
 
+- name: Set default facts
+  set_fact:
+    osbuild_repo: "{{ osbuild_repo | default('https://github.com/osbuild/osbuild') }}"
+    osbuild_version: "{{ osbuild_version | default('master') }}"
+    osbuild_ref: "{{ osbuild_ref | default('+refs/pull/*:refs/heads/*') }}"
+    osbuild_composer_repo: "{{ osbuild_composer_repo | default('https://github.com/osbuild/osbuild-composer') }}"
+    osbuild_composer_version: "{{ osbuild_composer_version | default('master') }}"
+    osbuild_composer_ref: "{{ osbuild_composer_ref | default('+refs/pull/*:refs/heads/*') }}"
+    cockpit_composer_repo: "{{ cockpit_composer_repo | default('https://github.com/weldr/cockpit-composer') }}"
+    cockpit_composer_version: "{{ cockpit_composer_version | default('master') }}"
+    cockpit_composer_ref: "{{ cockpit_composer_ref | default('+refs/pull/*:refs/heads/*') }}"
+
+- name: Dump what we will be doing
+  debug:
+    msg: |
+      Current deployment plan:
+
+      osbuild_repo: {{ osbuild_repo }}
+      osbuild_version: {{ osbuild_version }}
+      osbuild_ref: {{ osbuild_ref }}
+
+      osbuild_composer_repo: {{ osbuild_composer_repo }}
+      osbuild_composer_version: {{ osbuild_composer_version }}
+      osbuild_composer_ref: {{ osbuild_composer_ref }}
+
+      cockpit_composer_repo: {{ osbuild_composer_repo }}
+      cockpit_composer_version: {{ osbuild_composer_version }}
+      cockpit_composer_ref: {{ osbuild_composer_ref }}
+
 - name: Set a password for the default user
   user:
     name: "{{ ansible_ssh_user }}"

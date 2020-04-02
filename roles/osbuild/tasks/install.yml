@@ -57,10 +57,10 @@
 
 - name: Clone osbuild from GitHub
   git:
-    repo: "{{ osbuild_repo | default('https://github.com/osbuild/osbuild') }}"
+    repo: "{{ osbuild_repo }}"
     dest: /opt/osbuild
-    version: "{{ osbuild_version | default('master') }}"
-    refspec: "{{ osbuild_ref | default('+refs/pull/*:refs/heads/*') }}"
+    version: "{{ osbuild_version }}"
+    refspec: "{{ osbuild_ref }}"
     force: yes
     clone: yes
     update: yes
@@ -68,10 +68,10 @@
 
 - name: Clone osbuild-composer from GitHub
   git:
-    repo: "{{ osbuild_composer_repo | default('https://github.com/osbuild/osbuild-composer') }}"
+    repo: "{{ osbuild_composer_repo }}"
     dest: /opt/osbuild-composer
-    version: "{{ osbuild_composer_version | default('master') }}"
-    refspec: "{{ osbuild_composer_ref | default('+refs/pull/*:refs/heads/*') }}"
+    version: "{{ osbuild_composer_version }}"
+    refspec: "{{ osbuild_composer_ref }}"
     force: yes
     clone: yes
     update: yes
@@ -79,10 +79,10 @@
 
 - name: Clone cockpit-composer from GitHub
   git:
-    repo: "{{ cockpit_composer_repo | default('https://github.com/weldr/cockpit-composer') }}"
+    repo: "{{ cockpit_composer_repo }}"
     dest: /opt/cockpit-composer
-    version: "{{ cockpit_composer_version | default('master') }}"
-    refspec: "{{ cockpit_composer_ref | default('+refs/pull/*:refs/heads/*') }}"
+    version: "{{ cockpit_composer_version }}"
+    refspec: "{{ cockpit_composer_ref }}"
     force: yes
     clone: yes
     update: yes
