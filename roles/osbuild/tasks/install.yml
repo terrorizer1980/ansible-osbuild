@@ -53,6 +53,7 @@
   loop:
     - osbuild
     - osbuild-composer
+    - cockpit-composer
 
 - name: Clone osbuild from GitHub
   git:
