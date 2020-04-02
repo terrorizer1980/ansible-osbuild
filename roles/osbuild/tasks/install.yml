@@ -145,11 +145,12 @@
   changed_when: false
 
 - name: Gather a list of currently installed packages
-  command: rpm -qa
-  args:
-    warn: no
-  register: packages_installed
-  changed_when: false
+  package_facts:
+    manager: rpm
+
+- name: Set a fact about whether osbuild is installed
+  set_fact:
+    osbuild_installed: "{{ 'osbuild' in ansible_facts.packages }}"
 
 - name: Disable services before removing old packages
   service:
@@ -159,10 +160,9 @@
   loop:
     - cockpit.socket
     - osbuild-composer.socket
-    - osbuild-composer.service
     - osbuild-rcm.socket
-  when:
-    - '"osbuild" in packages_installed.stdout_lines'
+    - osbuild-composer.service
+  when: osbuild_installed
 
 - name: Remove the currently installed packages
   package:
@@ -172,8 +172,7 @@
       - "osbuild*"
       - "python3-osbuild"
     state: absent
-  when:
-    - '"osbuild" in packages_installed.stdout_lines'
+  when: osbuild_installed
 
 - name: List packages to be installed
   debug:
