@@ -12,6 +12,9 @@
 # cockpit_composer_version: master
 # cockpit_composer_ref: refs/heads/master
 
+# Update all software packages before building and installing.
+update_all_packages: no
+
 # Set to yes to run integration tests immediately after deployment (takes time).
 run_integration_tests: no
 

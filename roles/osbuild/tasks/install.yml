@@ -25,6 +25,7 @@
   register: package_updates
   until: package_updates is success
   retries: 5
+  when: update_all_packages
 
 - name: Install required packages
   package:
