@@ -25,9 +25,9 @@
       osbuild_composer_version: {{ osbuild_composer_version }}
       osbuild_composer_ref: {{ osbuild_composer_ref }}
 
-      cockpit_composer_repo: {{ osbuild_composer_repo }}
-      cockpit_composer_version: {{ osbuild_composer_version }}
-      cockpit_composer_ref: {{ osbuild_composer_ref }}
+      cockpit_composer_repo: {{ cockpit_composer_repo }}
+      cockpit_composer_version: {{ cockpit_composer_version }}
+      cockpit_composer_ref: {{ cockpit_composer_ref }}
 
 - name: Set a password for the default user
   user:
