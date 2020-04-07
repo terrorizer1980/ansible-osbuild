@@ -1,11 +1,8 @@
 #!/bin/bash
 set -euxo pipefail
 
-# Set an output path for the junit file.
-export JUNIT_OUTPUT_DIR=junit/
-
 # Ensure we have the right packages installed.
-sudo dnf -y install ansible python3-junit_xml
+sudo dnf -y install ansible
 
 # Check to see if we are supposed to run integration tests.
 if [[ ${RUN_INTEGRATION_TESTS:-0} == 1 ]]; then
