@@ -8,7 +8,7 @@
     osbuild_composer_repo: "{{ osbuild_composer_repo | default('https://github.com/osbuild/osbuild-composer') }}"
     osbuild_composer_version: "{{ osbuild_composer_version | default('master') }}"
     osbuild_composer_ref: "{{ osbuild_composer_ref | default('+refs/pull/*:refs/heads/*') }}"
-    cockpit_composer_repo: "{{ cockpit_composer_repo | default('https://github.com/weldr/cockpit-composer') }}"
+    cockpit_composer_repo: "{{ cockpit_composer_repo | default('https://github.com/osbuild/cockpit-composer') }}"
     cockpit_composer_version: "{{ cockpit_composer_version | default('master') }}"
     cockpit_composer_ref: "{{ cockpit_composer_ref | default('+refs/pull/*:refs/heads/*') }}"
 
