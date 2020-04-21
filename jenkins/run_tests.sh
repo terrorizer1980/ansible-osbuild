@@ -9,11 +9,9 @@ if [[ ${RUN_INTEGRATION_TESTS:-0} == 1 ]]; then
   EXTRA_VARS="-e 'run_integration_tests=yes'"
 fi
 
-# Run a deployment
+# Set up a hosts file for Ansible.
 echo -e "[test_instances]\nlocalhost ansible_connection=local" > hosts.ini
 ansible-playbook -i hosts.ini ${EXTRA_VARS:-} playbook.yml
 
-# Get the integration test logs if they exist and we are running under Jenkins.
-if [ -e "/tmp/composer_tests.log.xz" ] && [ -n "${WORKSPACE:-}"] ; then
-  cp /tmp/composer_tests.log.xz $WORKSPACE
-fi
+# Run testing playbook
+ansible-playbook -i hosts.ini jenkins/test.yml
