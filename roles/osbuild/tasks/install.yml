@@ -133,8 +133,8 @@
   when: async_result_item.item.enabled
   register: async_poll_results
   until: async_poll_results.finished
-  retries: 60
-  delay: 10
+  retries: 40
+  delay: 15
 
 - name: Get a list of RPMs built for osbuild
   command: "find /opt/osbuild/rpmbuild/RPMS/ -name '*.rpm'"
