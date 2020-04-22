@@ -157,11 +157,7 @@
   package_facts:
     manager: rpm
 
-- name: Set a fact about whether osbuild is installed
-  set_fact:
-    osbuild_installed: "{{ 'osbuild' in ansible_facts.packages }}"
-
-- name: Disable services before removing old packages
+- name: Disable services (allowed to fail)
   service:
     name: "{{ item }}"
     state: stopped
@@ -171,34 +167,27 @@
     - osbuild-composer.socket
     - osbuild-rcm.socket
     - osbuild-composer.service
-  when: osbuild_installed
+  ignore_errors: yes
 
-- name: Remove the currently installed packages
-  package:
-    name:
-      - "osbuild-composer*"
-      - "osbuild*"
-      - "python3-osbuild"
-    state: absent
-  when: osbuild_installed
+- name: Assemble a list of packages to install
+  set_fact:
+    packages_to_install: "{{ composer_packages.stdout_lines + osbuild_packages.stdout_lines + (cockpit_packages.stdout_lines | default([])) }}"
 
 - name: List packages to be installed
   debug:
-    msg: "{{ composer_packages.stdout_lines + osbuild_packages.stdout_lines + (cockpit_packages.stdout_lines | default([])) }}"
+    var: packages_to_install
 
-- name: Install RPMs
+- name: Install RPMs with dnf
   package:
-    name: "{{ composer_packages.stdout_lines + osbuild_packages.stdout_lines + (cockpit_packages.stdout_lines | default([])) }}"
+    name: "{{ packages_to_install }}"
     state: latest
   changed_when: true
 
-- name: Force upgrade the cockpit-composer RPM
-  command: "rpm -Uvh --force {{ item }}"
+- name: Force install the RPMs to work around versioning issues
+  command: "rpm -Uvh --force {{ packages_to_install | join(' ') }}"
   args:
     warn: no
-  loop: "{{ cockpit_packages.stdout_lines }}"
   changed_when: true
-  when: install_cockpit_composer_from_git
 
 - name: Enable services
   service:
