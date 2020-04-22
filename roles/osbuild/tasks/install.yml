@@ -169,6 +169,15 @@
     - osbuild-composer.service
   ignore_errors: yes
 
+- name: Remove the currently installed packages (allowed to fail)
+  package:
+    name:
+      - "osbuild-composer*"
+      - "osbuild*"
+      - "python3-osbuild"
+    state: absent
+  ignore_errors: yes
+
 - name: Assemble a list of packages to install
   set_fact:
     packages_to_install: "{{ composer_packages.stdout_lines + osbuild_packages.stdout_lines + (cockpit_packages.stdout_lines | default([])) }}"
