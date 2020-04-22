@@ -51,6 +51,3 @@
 - import_tasks: install.yml
 
 - import_tasks: test_api_server.yml
-
-- import_tasks: test_integration.yml
-  when: run_integration_tests | bool
