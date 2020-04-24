@@ -1,5 +1,14 @@
 ---
 
+- name: Show details about the system
+  debug:
+    msg: |
+      System details:
+        - Hostname: "{{ ansible_hostname }}"
+        - IP address: "{{ ansible_default_ipv4.address }}"
+        - CPUs: "{{ ansible_processor_vcpus }}"
+        - Arch: "{{ ansible_architecture }}"
+
 - name: Set default facts
   set_fact:
     osbuild_repo: "{{ osbuild_repo | default('https://github.com/osbuild/osbuild') }}"
