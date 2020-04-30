@@ -178,6 +178,16 @@
     state: absent
   ignore_errors: yes
 
+- name: Clean up the previous osbuild-composer directories
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /var/lib/osbuild-composer
+    - /var/cache/osbuild-composer
+  when:
+    - cleanup_composer_directories
+
 - name: Assemble a list of packages to install
   set_fact:
     packages_to_install: "{{ composer_packages.stdout_lines + osbuild_packages.stdout_lines + (cockpit_packages.stdout_lines | default([])) }}"
