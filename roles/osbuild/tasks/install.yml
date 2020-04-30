@@ -186,7 +186,7 @@
     - /var/lib/osbuild-composer
     - /var/cache/osbuild-composer
   when:
-    - cleanup_composer_directories
+    - cleanup_composer_directories | bool
 
 - name: Assemble a list of packages to install
   set_fact:
