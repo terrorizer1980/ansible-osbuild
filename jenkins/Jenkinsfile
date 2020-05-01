@@ -1,0 +1,31 @@
+pipeline {
+    agent none
+
+    options {
+        timestamps()
+        ansiColor('xterm')
+    }
+
+    stages {
+        stage("🛫 Deploy") {
+            matrix {
+                axes {
+                    axis {
+                        name 'DISTRO'
+                        values 'fedora31', 'fedora32', 'rhel82', 'rhel83'
+                    }
+                }
+                stages {
+                    stage('Ansible') {
+                        agent {
+                            label "${DISTRO}"
+                        }
+                        steps {
+                            sh script: "jenkins/run_tests.sh", label: "Deploy on ${DISTRO}"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
