@@ -1,5 +1,9 @@
 ---
 
+- name: Set the directory where repositories are cloned
+  set_fact:
+    git_repo_dir: "{{ playbook_dir }}/repos"
+
 - name: Show details about the system
   debug:
     msg: |
@@ -47,6 +51,7 @@
     name: "{{ ansible_ssh_user }}"
     password: "{{ password_hashes[ansible_ssh_user] }}"
     update_password: always
+  become: yes
 
 - name: Install ssh keys
   authorized_key:

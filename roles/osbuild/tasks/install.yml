@@ -6,6 +6,7 @@
     section: main
     option: fastestmirror
     value: "1"
+  become: yes
   when:
     - ansible_distribution == 'Fedora'
 
@@ -15,6 +16,7 @@
     section: main
     option: install_weak_deps
     value: "0"
+  become: yes
   when:
     - ansible_distribution == 'Fedora'
 
@@ -22,6 +24,7 @@
   package:
     name: "*"
     state: latest
+  become: yes
   register: package_updates
   until: package_updates is success
   retries: 5
@@ -30,6 +33,7 @@
 - name: Install required packages
   package:
     name: "{{ required_packages }}"
+  become: yes
   register: package_install
   until: package_install is success
   retries: 5
@@ -47,19 +51,18 @@
     - name: user.email
       value: "nobody@redhat.com"
 
-- name: Ensure cloned repo directories are completely clean
+- name: Ensure the repos directory is clean
   file:
-    path: "/opt/{{ item }}"
-    state: absent
+    path: "{{ git_repo_dir }}"
+    state: "{{ item }}"
   loop:
-    - osbuild
-    - osbuild-composer
-    - cockpit-composer
+    - absent
+    - directory
 
 - name: Clone osbuild from GitHub
   git:
     repo: "{{ osbuild_repo }}"
-    dest: /opt/osbuild
+    dest: "{{ git_repo_dir }}/osbuild"
     version: "{{ osbuild_version }}"
     refspec: "{{ osbuild_ref }}"
     force: yes
@@ -70,7 +73,7 @@
 - name: Clone osbuild-composer from GitHub
   git:
     repo: "{{ osbuild_composer_repo }}"
-    dest: /opt/osbuild-composer
+    dest: "{{ git_repo_dir }}/osbuild-composer"
     version: "{{ osbuild_composer_version }}"
     refspec: "{{ osbuild_composer_ref }}"
     force: yes
@@ -81,7 +84,7 @@
 - name: Clone cockpit-composer from GitHub
   git:
     repo: "{{ cockpit_composer_repo }}"
-    dest: /opt/cockpit-composer
+    dest: "{{ git_repo_dir }}/cockpit-composer"
     version: "{{ cockpit_composer_version }}"
     refspec: "{{ cockpit_composer_ref }}"
     force: yes
@@ -93,10 +96,11 @@
 - name: Install build dependencies
   command: |
     dnf -y builddep \
-      /opt/osbuild-composer/osbuild-composer.spec \
-      /opt/osbuild/osbuild.spec
+      {{ git_repo_dir }}/osbuild-composer/osbuild-composer.spec \
+      {{ git_repo_dir }}/osbuild/osbuild.spec
   args:
     warn: no
+  become: yes
   register: composer_builddep
   until: composer_builddep is success
   retries: 5
@@ -108,13 +112,13 @@
     chdir: "{{ item.dir }}"
   loop:
     - project: osbuild
-      dir: /opt/osbuild
+      dir: "{{ git_repo_dir }}/osbuild"
       enabled: yes
     - project: osbuild-composer
-      dir: /opt/osbuild-composer
+      dir: "{{ git_repo_dir }}/osbuild-composer"
       enabled: yes
     - project: cockpit-composer
-      dir: /opt/cockpit-composer
+      dir: "{{ git_repo_dir }}/cockpit-composer"
       enabled: "{{ install_cockpit_composer_from_git }}"
   loop_control:
     label: "{{ item.project }}"
@@ -138,17 +142,17 @@
   delay: 15
 
 - name: Get a list of RPMs built for osbuild
-  command: "find /opt/osbuild/rpmbuild/RPMS/ -name '*.rpm'"
+  command: "find {{ git_repo_dir }}/osbuild/rpmbuild/RPMS/ -name '*.rpm'"
   register: osbuild_packages
   changed_when: false
 
 - name: Get a list of RPMs built for osbuild-composer
-  command: "find /opt/osbuild-composer/rpmbuild/RPMS/ -name '*.rpm'"
+  command: "find {{ git_repo_dir }}/osbuild-composer/rpmbuild/RPMS/ -name '*.rpm'"
   register: composer_packages
   changed_when: false
 
 - name: Get a list of RPMs built for cockpit-composer
-  command: "find /opt/cockpit-composer/ -name '*.rpm'"
+  command: "find {{ git_repo_dir }}/cockpit-composer/ -name '*.rpm'"
   register: cockpit_packages
   changed_when: false
   when: install_cockpit_composer_from_git
@@ -162,6 +166,7 @@
     name: "{{ item }}"
     state: stopped
     enabled: no
+  become: yes
   loop:
     - cockpit.socket
     - osbuild-composer.socket
@@ -176,12 +181,14 @@
       - "osbuild*"
       - "python3-osbuild"
     state: absent
+  become: yes
   ignore_errors: yes
 
 - name: Clean up the previous osbuild-composer directories
   file:
     path: "{{ item }}"
     state: absent
+  become: yes
   loop:
     - /var/lib/osbuild-composer
     - /var/cache/osbuild-composer
@@ -200,12 +207,14 @@
   package:
     name: "{{ packages_to_install }}"
     state: latest
+  become: yes
   changed_when: true
 
 - name: Force install the RPMs to work around versioning issues
   command: "rpm -Uvh --force {{ packages_to_install | join(' ') }}"
   args:
     warn: no
+  become: yes
   changed_when: true
 
 - name: Enable services
@@ -213,6 +222,7 @@
     name: "{{ item }}"
     state: started
     enabled: yes
+  become: yes
   loop:
     - osbuild-rcm.socket
     - osbuild-composer.socket
