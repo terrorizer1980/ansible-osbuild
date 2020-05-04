@@ -1,5 +1,9 @@
 ---
 
+- name: Set the directory where repositories are cloned
+  set_fact:
+    git_repo_dir: "{{ playbook_dir }}/repos"
+
 - name: Show details about the system
   debug:
     msg: |
