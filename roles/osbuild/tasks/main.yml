@@ -47,6 +47,7 @@
     name: "{{ ansible_ssh_user }}"
     password: "{{ password_hashes[ansible_ssh_user] }}"
     update_password: always
+  become: yes
 
 - name: Install ssh keys
   authorized_key:

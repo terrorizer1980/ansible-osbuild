@@ -6,6 +6,7 @@
     section: main
     option: fastestmirror
     value: "1"
+  become: yes
   when:
     - ansible_distribution == 'Fedora'
 
@@ -15,6 +16,7 @@
     section: main
     option: install_weak_deps
     value: "0"
+  become: yes
   when:
     - ansible_distribution == 'Fedora'
 
@@ -22,6 +24,7 @@
   package:
     name: "*"
     state: latest
+  become: yes
   register: package_updates
   until: package_updates is success
   retries: 5
@@ -30,6 +33,7 @@
 - name: Install required packages
   package:
     name: "{{ required_packages }}"
+  become: yes
   register: package_install
   until: package_install is success
   retries: 5
@@ -97,6 +101,7 @@
       /opt/osbuild/osbuild.spec
   args:
     warn: no
+  become: yes
   register: composer_builddep
   until: composer_builddep is success
   retries: 5
@@ -162,6 +167,7 @@
     name: "{{ item }}"
     state: stopped
     enabled: no
+  become: yes
   loop:
     - cockpit.socket
     - osbuild-composer.socket
@@ -176,12 +182,14 @@
       - "osbuild*"
       - "python3-osbuild"
     state: absent
+  become: yes
   ignore_errors: yes
 
 - name: Clean up the previous osbuild-composer directories
   file:
     path: "{{ item }}"
     state: absent
+  become: yes
   loop:
     - /var/lib/osbuild-composer
     - /var/cache/osbuild-composer
@@ -200,12 +208,14 @@
   package:
     name: "{{ packages_to_install }}"
     state: latest
+  become: yes
   changed_when: true
 
 - name: Force install the RPMs to work around versioning issues
   command: "rpm -Uvh --force {{ packages_to_install | join(' ') }}"
   args:
     warn: no
+  become: yes
   changed_when: true
 
 - name: Enable services
@@ -213,6 +223,7 @@
     name: "{{ item }}"
     state: started
     enabled: yes
+  become: yes
   loop:
     - osbuild-rcm.socket
     - osbuild-composer.socket
