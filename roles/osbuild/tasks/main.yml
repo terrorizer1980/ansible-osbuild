@@ -1,5 +1,9 @@
 ---
 
+- name: Get a subset of ansible facts
+  setup:
+    gather_subset: "!all,hardware,min,network"
+
 - name: Set the directory where repositories are cloned
   set_fact:
     git_repo_dir: "{{ playbook_dir }}/repos"

@@ -11,6 +11,7 @@
       changed_when: "'Nothing to do' not in python_reqs.stdout"
 
 - hosts: test_instances
+  gather_facts: no
   vars_files:
     - vars.yml
   roles:
