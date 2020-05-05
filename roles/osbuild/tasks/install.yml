@@ -4,19 +4,14 @@
   ini_file:
     path: /etc/dnf/dnf.conf
     section: main
-    option: fastestmirror
-    value: "1"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
   become: yes
-  when:
-    - ansible_distribution == 'Fedora'
-
-- name: Disable install_weak_deps on Fedora
-  ini_file:
-    path: /etc/dnf/dnf.conf
-    section: main
-    option: install_weak_deps
-    value: "0"
-  become: yes
+  loop:
+    - option: fastestmirror
+      value: "1"
+    - option: install_weak_deps
+      value: "0"
   when:
     - ansible_distribution == 'Fedora'
 
