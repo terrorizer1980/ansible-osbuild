@@ -12,18 +12,18 @@ pipeline {
 
                 stage('Fedora 31') {
                     agent { label "fedora31" }
-                    steps { sh "jenkins/run_tests.sh" }
+                    steps { sh "schutzbot/run_tests.sh" }
                 }
 
                 stage('Fedora 32') {
                     agent { label "fedora32" }
-                    steps { sh "jenkins/run_tests.sh" }
+                    steps { sh "schutzbot/run_tests.sh" }
                 }
 
-                //stage('RHEL 8.2') {
-                //    agent { label "rhel82" }
-                //    steps { sh "jenkins/run_tests.sh" }
-                //}
+                stage('RHEL 8.2') {
+                   agent { label "rhel82" }
+                   steps { sh "schutzbot/run_tests.sh" }
+                }
 
                 //stage('RHEL 8.3') {
                 //    agent { label "rhel83" }
