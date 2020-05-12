@@ -64,7 +64,7 @@
     clone: yes
     update: yes
     track_submodules: no
-  when: install_osbuild_from_git
+  when: install_osbuild_from_git | bool
 
 - name: Clone osbuild-composer from GitHub
   git:
@@ -76,7 +76,7 @@
     clone: yes
     update: yes
     track_submodules: no
-  when: install_osbuild_composer_from_git
+  when: install_osbuild_composer_from_git | bool
 
 - name: Clone cockpit-composer from GitHub
   git:
@@ -88,7 +88,7 @@
     clone: yes
     update: yes
     track_submodules: no
-  when: install_cockpit_composer_from_git
+  when: install_cockpit_composer_from_git | bool
 
 - name: Install build dependencies
   command: |
@@ -103,7 +103,7 @@
   retries: 5
   changed_when: "'Nothing to do' in composer_builddep.stdout"
   when:
-    - install_osbuild_composer_from_git or install_osbuild_from_git
+    - install_osbuild_composer_from_git | bool or install_osbuild_from_git | bool
 
 - name: Build RPMs
   command: make -C "{{ item.dir }}" rpm
@@ -112,13 +112,13 @@
   loop:
     - project: osbuild
       dir: "{{ git_repo_dir }}/osbuild"
-      enabled: "{{ install_osbuild_from_git }}"
+      enabled: "{{ install_osbuild_from_git | bool }}"
     - project: osbuild-composer
       dir: "{{ git_repo_dir }}/osbuild-composer"
-      enabled: "{{ install_osbuild_composer_from_git }}"
+      enabled: "{{ install_osbuild_composer_from_git | bool }}"
     - project: cockpit-composer
       dir: "{{ git_repo_dir }}/cockpit-composer"
-      enabled: "{{ install_cockpit_composer_from_git }}"
+      enabled: "{{ install_cockpit_composer_from_git | bool }}"
   loop_control:
     label: "{{ item.project }}"
   when: item.enabled
@@ -144,19 +144,19 @@
   command: "find {{ git_repo_dir }}/osbuild/rpmbuild/RPMS/ -name '*.rpm'"
   register: osbuild_packages
   changed_when: false
-  when: install_osbuild_from_git
+  when: install_osbuild_from_git | bool
 
 - name: Get a list of RPMs built for osbuild-composer
   command: "find {{ git_repo_dir }}/osbuild-composer/rpmbuild/RPMS/ -name '*.rpm'"
   register: composer_packages
   changed_when: false
-  when: install_osbuild_composer_from_git
+  when: install_osbuild_composer_from_git | bool
 
 - name: Get a list of RPMs built for cockpit-composer
   command: "find {{ git_repo_dir }}/cockpit-composer/ -name '*.rpm'"
   register: cockpit_packages
   changed_when: false
-  when: install_cockpit_composer_from_git
+  when: install_cockpit_composer_from_git | bool
 
 - name: Gather a list of currently installed packages
   package_facts:
@@ -230,7 +230,7 @@
       - python3-osbuild
   become: yes
   when:
-    - not install_osbuild_composer_from_git or not install_osbuild_from_git
+    - not install_osbuild_composer_from_git | bool or not install_osbuild_from_git | bool
 
 - name: Enable services
   service:
