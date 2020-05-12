@@ -15,6 +15,12 @@
 # Update all software packages before building and installing.
 update_all_packages: no
 
+# Install osbuild from git.
+install_osbuild_from_git: yes
+
+# Install osbuild-composer from git.
+install_osbuild_composer_from_git: yes
+
 # Install cockpit-composer from git.
 install_cockpit_composer_from_git: no
 

@@ -34,20 +34,28 @@
     msg: |
       Current deployment plan:
 
+      {% if install_osbuild_from_git %}
       osbuild_repo: {{ osbuild_repo }}
       osbuild_version: {{ osbuild_version }}
       osbuild_ref: {{ osbuild_ref }}
+      {% else %}
+      osbuild__version: from existing dnf repository
+      {% endif %}
 
+      {% if install_osbuild_composer_from_git %}
       osbuild_composer_repo: {{ osbuild_composer_repo }}
       osbuild_composer_version: {{ osbuild_composer_version }}
       osbuild_composer_ref: {{ osbuild_composer_ref }}
+      {% else %}
+      osbuild_composer_version: from existing dnf repository
+      {% endif %}
 
       {% if install_cockpit_composer_from_git %}
       cockpit_composer_repo: {{ cockpit_composer_repo }}
       cockpit_composer_version: {{ cockpit_composer_version }}
       cockpit_composer_ref: {{ cockpit_composer_ref }}
       {% else %}
-      cockpit_composer_version: from Fedora's repositories
+      cockpit_composer_version: from existing dnf repository
       {% endif %}
 
 - name: Set a password for the default user

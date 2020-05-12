@@ -64,6 +64,7 @@
     clone: yes
     update: yes
     track_submodules: no
+  when: install_osbuild_from_git
 
 - name: Clone osbuild-composer from GitHub
   git:
@@ -75,6 +76,7 @@
     clone: yes
     update: yes
     track_submodules: no
+  when: install_osbuild_composer_from_git
 
 - name: Clone cockpit-composer from GitHub
   git:
@@ -100,6 +102,8 @@
   until: composer_builddep is success
   retries: 5
   changed_when: "'Nothing to do' in composer_builddep.stdout"
+  when:
+    - install_osbuild_composer_from_git or install_osbuild_from_git
 
 - name: Build RPMs
   command: make -C "{{ item.dir }}" rpm
@@ -108,10 +112,10 @@
   loop:
     - project: osbuild
       dir: "{{ git_repo_dir }}/osbuild"
-      enabled: yes
+      enabled: "{{ install_osbuild_from_git }}"
     - project: osbuild-composer
       dir: "{{ git_repo_dir }}/osbuild-composer"
-      enabled: yes
+      enabled: "{{ install_osbuild_composer_from_git }}"
     - project: cockpit-composer
       dir: "{{ git_repo_dir }}/cockpit-composer"
       enabled: "{{ install_cockpit_composer_from_git }}"
@@ -140,11 +144,13 @@
   command: "find {{ git_repo_dir }}/osbuild/rpmbuild/RPMS/ -name '*.rpm'"
   register: osbuild_packages
   changed_when: false
+  when: install_osbuild_from_git
 
 - name: Get a list of RPMs built for osbuild-composer
   command: "find {{ git_repo_dir }}/osbuild-composer/rpmbuild/RPMS/ -name '*.rpm'"
   register: composer_packages
   changed_when: false
+  when: install_osbuild_composer_from_git
 
 - name: Get a list of RPMs built for cockpit-composer
   command: "find {{ git_repo_dir }}/cockpit-composer/ -name '*.rpm'"
@@ -211,6 +217,20 @@
     warn: no
   become: yes
   changed_when: true
+
+- name: Install osbuild and osbuild-composer from dnf if needed
+  dnf:
+    name:
+      - osbuild
+      - osbuild-ostree
+      - osbuild-composer
+      - osbuild-composer-rcm
+      - osbuild-composer-tests
+      - osbuild-composer-worker
+      - python3-osbuild
+  become: yes
+  when:
+    - not install_osbuild_composer_from_git or not install_osbuild_from_git
 
 - name: Enable services
   service:
