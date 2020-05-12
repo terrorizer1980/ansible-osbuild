@@ -210,6 +210,8 @@
     state: latest
   become: yes
   changed_when: true
+  when:
+    - packages_to_install
 
 - name: Force install the RPMs to work around versioning issues
   command: "rpm -Uvh --force {{ packages_to_install | join(' ') }}"
@@ -217,6 +219,8 @@
     warn: no
   become: yes
   changed_when: true
+  when:
+    - packages_to_install
 
 - name: Install osbuild and osbuild-composer from dnf if needed
   dnf:
