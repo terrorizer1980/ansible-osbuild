@@ -39,7 +39,7 @@
       osbuild_version: {{ osbuild_version }}
       osbuild_ref: {{ osbuild_ref }}
       {% else %}
-      osbuild__version: from existing dnf repository
+      osbuild_version: from existing dnf repository
       {% endif %}
 
       {% if install_osbuild_composer_from_git | bool %}
