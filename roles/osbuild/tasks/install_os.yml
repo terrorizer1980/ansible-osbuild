@@ -1,0 +1,14 @@
+---
+
+- name: Install osbuild and osbuild-composer from os repositories
+  dnf:
+    name:
+      - osbuild
+      - osbuild-ostree
+      - osbuild-composer
+      - osbuild-composer-rcm
+      # NOTE(mhayden): The tests package doesn't exist in the repos.
+      # - osbuild-composer-tests
+      - osbuild-composer-worker
+      - python3-osbuild
+  become: yes

@@ -1,68 +1,38 @@
 pipeline {
     agent none
 
-    environment {
-        S3_WEB_URL = "http://osbuild-composer-repos.s3-website.us-east-2.amazonaws.com"
-        // Use packages built in CI for osbuild composer.
-        MOCK_VERSION_ID = "64"
-        EXPECTED_RPM_VERSION = "20200512"
-    }
-
     options {
-        timestamps()
         ansiColor('xterm')
+        // parallelsAlwaysFailFast()
+        timestamps()
     }
 
     stages {
         stage("Test") {
             parallel {
 
-                stage('Fedora 31 (compile)') {
+                stage('Fedora 31 (mock)') {
                     agent { label "fedora31" }
                     steps { sh "schutzbot/run_tests.sh" }
                 }
 
-                stage('Fedora 32 (compile)') {
+                stage('Fedora 32 (mock)') {
                     agent { label "fedora32" }
                     steps { sh "schutzbot/run_tests.sh" }
                 }
 
-                stage('RHEL 8.2 (compile)') {
+                stage('RHEL 8.2 (mock)') {
                    agent { label "rhel82" }
                    steps { sh "schutzbot/run_tests.sh" }
                 }
 
-                stage('Fedora 31 (install)') {
-                    agent { label "fedora31" }
-                    environment {
-                        DEPLOY_REPO = "yes"
-                        EXTRA_VARS = "-e install_osbuild_from_git=no \
-                            -e install_osbuild_composer_from_git=no \
-                            -e install_cockpit_composer_from_git=no"
-                    }
-                    steps { sh "schutzbot/run_tests.sh" }
-                }
-
-                stage('Fedora 32 (install)') {
+                stage('Fedora 32 (os)') {
                     agent { label "fedora32" }
                     environment {
                         DEPLOY_REPO = "yes"
-                        EXTRA_VARS = "-e install_osbuild_from_git=no \
-                            -e install_osbuild_composer_from_git=no \
-                            -e install_cockpit_composer_from_git=no"
+                        EXTRA_VARS = "-e install_source=os"
                     }
                     steps { sh "schutzbot/run_tests.sh" }
-                }
-
-                stage('RHEL 8.2 (install)') {
-                   agent { label "rhel82" }
-                    environment {
-                        DEPLOY_REPO = "yes"
-                        EXTRA_VARS = "-e install_osbuild_from_git=no \
-                            -e install_osbuild_composer_from_git=no \
-                            -e install_cockpit_composer_from_git=no"
-                    }
-                   steps { sh "schutzbot/run_tests.sh" }
                 }
 
             }

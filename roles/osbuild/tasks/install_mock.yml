@@ -1,0 +1,15 @@
+---
+
+- name: Find the binary RPMs we built
+  find:
+    paths: "{{ yum_repo_dir }}"
+    patterns: "^.*(?<!src)\\.rpm$"
+    use_regex: yes
+    recurse: yes
+  register: binary_rpms
+
+- name: Install the RPMs we just built
+  dnf:
+    name: "{{ binary_rpms.files | map(attribute='path') | list }}"
+    state: present
+  become: yes
