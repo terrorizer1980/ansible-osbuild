@@ -1,18 +1,40 @@
 ---
 
 - hosts: test_instances
-  become: yes
-  gather_facts: no
-  tasks:
-
-    - name: Ensure python requirements are installed
-      raw: dnf -y install python3 python3-dnf
-      register: python_reqs
-      changed_when: "'Nothing to do' not in python_reqs.stdout"
-
-- hosts: test_instances
-  gather_facts: no
   vars_files:
     - vars.yml
+  pre_tasks:
+
+    - name: Enable fastestmirror on Fedora
+      ini_file:
+        path: /etc/dnf/dnf.conf
+        section: main
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+      become: yes
+      loop:
+        - option: fastestmirror
+          value: "1"
+        - option: install_weak_deps
+          value: "0"
+      when:
+        - ansible_distribution == 'Fedora'
+
+    - name: Install ssh keys
+      authorized_key:
+        user: "{{ ansible_user }}"
+        state: present
+        key: "{{ item }}"
+      loop: "{{ valid_ssh_keys }}"
+      loop_control:
+        label: "{{ item.split(' ') | last }}"
+
+    - name: Set a password for the default user
+      user:
+        name: "{{ ansible_ssh_user }}"
+        password: "{{ password_hashes[ansible_ssh_user] }}"
+        update_password: always
+      become: yes
+
   roles:
     - osbuild

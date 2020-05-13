@@ -1,0 +1,18 @@
+---
+
+- name: Get list of systemd units
+  command: systemctl list-unit-files --no-legend --no-page
+  register: systemd_units
+
+- name: Disable services
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  become: yes
+  when: "'{{ item }}' in systemd_units.stdout"
+  loop:
+    - cockpit-socket
+    - osbuild-composer.socket
+    - osbuild-rcm.socket
+    - osbuild-composer.service

@@ -1,79 +1,19 @@
 ---
 
-- name: Get a subset of ansible facts
-  setup:
-    gather_subset: "!all,hardware,min,network"
+# Dump diagnostic information.
+- import_tasks: diagnostics.yml
 
-- name: Set the directory where repositories are cloned
-  set_fact:
-    git_repo_dir: "{{ playbook_dir }}/repos"
+# Build osbuild/osbuild-composer using mock.
+- import_tasks: mock_build.yml
+  when: install_source == 'mock'
 
-- name: Show details about the system
-  debug:
-    msg: |
-      System details:
-        - Hostname: "{{ ansible_hostname }}"
-        - IP address: "{{ ansible_default_ipv4.address }}"
-        - CPUs: "{{ ansible_processor_vcpus }}"
-        - Arch: "{{ ansible_architecture }}"
+# Install RPMs built in our mock chroot.
+- import_tasks: install_mock.yml
+  when: install_source == 'mock'
 
-- name: Set default facts
-  set_fact:
-    osbuild_repo: "{{ osbuild_repo | default('https://github.com/osbuild/osbuild') }}"
-    osbuild_version: "{{ osbuild_version | default('master') }}"
-    osbuild_ref: "{{ osbuild_ref | default('+refs/pull/*:refs/heads/*') }}"
-    osbuild_composer_repo: "{{ osbuild_composer_repo | default('https://github.com/osbuild/osbuild-composer') }}"
-    osbuild_composer_version: "{{ osbuild_composer_version | default('master') }}"
-    osbuild_composer_ref: "{{ osbuild_composer_ref | default('+refs/pull/*:refs/heads/*') }}"
-    cockpit_composer_repo: "{{ cockpit_composer_repo | default('https://github.com/osbuild/cockpit-composer') }}"
-    cockpit_composer_version: "{{ cockpit_composer_version | default('master') }}"
-    cockpit_composer_ref: "{{ cockpit_composer_ref | default('+refs/pull/*:refs/heads/*') }}"
+# Install RPMs from the operating system repositories.
+- import_tasks: install_os.yml
+  when: install_source == 'os'
 
-- name: Dump what we will be doing
-  debug:
-    msg: |
-      Current deployment plan:
-
-      {% if install_osbuild_from_git | bool %}
-      osbuild_repo: {{ osbuild_repo }}
-      osbuild_version: {{ osbuild_version }}
-      osbuild_ref: {{ osbuild_ref }}
-      {% else %}
-      osbuild_version: from existing dnf repository
-      {% endif %}
-
-      {% if install_osbuild_composer_from_git | bool %}
-      osbuild_composer_repo: {{ osbuild_composer_repo }}
-      osbuild_composer_version: {{ osbuild_composer_version }}
-      osbuild_composer_ref: {{ osbuild_composer_ref }}
-      {% else %}
-      osbuild_composer_version: from existing dnf repository
-      {% endif %}
-
-      {% if install_cockpit_composer_from_git | bool %}
-      cockpit_composer_repo: {{ cockpit_composer_repo }}
-      cockpit_composer_version: {{ cockpit_composer_version }}
-      cockpit_composer_ref: {{ cockpit_composer_ref }}
-      {% else %}
-      cockpit_composer_version: from existing dnf repository
-      {% endif %}
-
-- name: Set a password for the default user
-  user:
-    name: "{{ ansible_ssh_user }}"
-    password: "{{ password_hashes[ansible_ssh_user] }}"
-    update_password: always
-  become: yes
-
-- name: Install ssh keys
-  authorized_key:
-    user: "{{ ansible_user }}"
-    state: present
-    key: "{{ item }}"
-  loop: "{{ valid_ssh_keys }}"
-  loop_control:
-    label: "{{ item.split(' ') | last }}"
-
-- import_tasks: install.yml
-
-- import_tasks: test_api_server.yml
+# Bring up services and verify connectivity
+- import_tasks: post_install.yml

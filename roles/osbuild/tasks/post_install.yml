@@ -1,0 +1,31 @@
+---
+
+- name: Install additional packages
+  dnf:
+    name:
+      - cockpit-composer
+      - composer-cli
+    state: present
+  become: yes
+
+- name: Enable services
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  become: yes
+  loop:
+    - osbuild-rcm.socket
+    - osbuild-composer.socket
+    - cockpit.socket
+
+# composer-cli seems to exit with a return code of 1 when everything is okay.
+- name: Test composer-cli
+  command: composer-cli status show
+  become: yes
+  register: composer_cli_test
+  failed_when: "'API server status' not in composer_cli_test.stdout"
+
+- name: Show output
+  debug:
+    var: composer_cli_test.stdout

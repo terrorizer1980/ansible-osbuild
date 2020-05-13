@@ -1,40 +1,22 @@
 # These variables override default values for variables in the roles.
 
-## Uncomment and change the following variables to clone from a different
-## repository (example: a GitHub fork), refspec, or version (SHA).
-# osbuild_composer_repo: https://github.com/osbuild/osbuild-composer
-# osbuild_composer_version: master
-# osbuild_composer_ref: refs/heads/master
-# osbuild_repo: https://github.com/osbuild/osbuild
-# osbuild_version: master
-# osbuild_ref: refs/heads/master
-# cockpit_composer_repo: https://github.com/weldr/cockpit-composer
-# cockpit_composer_version: master
-# cockpit_composer_ref: refs/heads/master
-
-# Update all software packages before building and installing.
-update_all_packages: no
-
-# Install osbuild from git.
-install_osbuild_from_git: yes
-
-# Install osbuild-composer from git.
-install_osbuild_composer_from_git: yes
-
-# Install cockpit-composer from git.
-install_cockpit_composer_from_git: no
-
 # Set to yes to run integration tests immediately after deployment (takes time).
 run_integration_tests: no
+
+# Specify how to install osbuild and osbuild-composer packages.
+#   mock: Build RPMs in a mock chroot and install from there
+#   os:   Install RPMs directly from the regular OS repositories.
+install_source: mock
+
+# Specify a ref or SHA to clone and build when install_source == 'mock'.
+osbuild_version: master
+osbuild_composer_version: master
 
 # Set the default password to match the default username.
 password_hashes:
   "cloud-user": "$6$4NoiMXLSuKgYaQ/2$xlvgej/fnceUXjseJDWYQu1YI0ApaexYCVvs8xOCs6onxTRO7Yj3blD3IB/Axa4imdiFYkJHbg050oOFrGAa30"
   "fedora": "$6$NAGA2hokAzys8r6O$woN3nQDy.8dykubJY5STQmVsiQt40FQiwTfxHsjmrc6LGU0F2NiR.Xq0/rqRFY5ywHzHIwnFognAzbI2yVd3i1"
   "root": "$6$wGqrsdAhocznBIUX$7uJoZHIsZc3yi93WtCPogdRz.Ov7du419N33DighEL1PMvMf78s0SYJJVXM8xAouA.xWHG4HK0.mpXsNb7ExC1"
-
-# Clean up osbuild-composer directories.
-cleanup_composer_directories: no
 
 # SSH keys to add to the instances.
 valid_ssh_keys:
