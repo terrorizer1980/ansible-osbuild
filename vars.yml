@@ -12,6 +12,10 @@ install_source: mock
 osbuild_version: master
 osbuild_composer_version: master
 
+# Repository URLs (you can override these to use a local clone)
+osbuild_repo_url: https://github.com/osbuild/osbuild.git
+osbuild_composer_repo_url: https://github.com/osbuild/osbuild-composer.git
+
 # Set the default password to match the default username.
 password_hashes:
   "cloud-user": "$6$4NoiMXLSuKgYaQ/2$xlvgej/fnceUXjseJDWYQu1YI0ApaexYCVvs8xOCs6onxTRO7Yj3blD3IB/Axa4imdiFYkJHbg050oOFrGAa30"

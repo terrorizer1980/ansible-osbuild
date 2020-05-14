@@ -44,14 +44,16 @@
 
 - name: Clone each repository
   git:
-    repo: "https://github.com/osbuild/{{ item.repo_name }}"
+    repo: "{{ item.repo_url }}"
     dest: "{{ git_repos_dir }}/{{ item.repo_name }}"
     version: "{{ item.version }}"
     refspec: "+refs/pull/*:refs/remotes/origin/pr/*"
   loop:
     - repo_name: osbuild
+      repo_url: "{{ osbuild_repo_url }}"
       version: "{{ osbuild_version }}"
     - repo_name: osbuild-composer
+      repo_url: "{{ osbuild_composer_repo_url }}"
       version: "{{ osbuild_composer_version }}"
 
 - name: Build source RPMs
