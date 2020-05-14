@@ -37,6 +37,15 @@
   when:
     - ansible_distribution == 'RedHat'
 
+- name: Enable fastestmirror for Fedora mock template
+  lineinfile:
+    path: /etc/mock/templates/fedora-branched.tpl
+    line: "fastestmirror=1"
+    insertbefore: "^install_weak_deps"
+  become: yes
+  when:
+    - ansible_distribution == "Fedora"
+
 - name: Create directory for git repos
   file:
     path: "{{ git_repos_dir }}"
