@@ -84,6 +84,31 @@
       --resultdir {{ yum_repo_dir }}/ --with=tests \
       {{ source_rpms.files | map(attribute='path') | list | join(' ') }}
   become: yes
+  register: mock_output
+
+- name: Write mock output to log file
+  copy:
+    dest: "{{ workspace }}/mock-output.log"
+    content: |
+      mock stderr:
+      {{ mock_output.stderr }}
+
+      mock stdout:
+      {{ mock_output.stdout }}
+
+- name: Find the mock logs
+  find:
+    paths: "{{ yum_repo_dir }}"
+    patterns: "*.log"
+    recurse: yes
+  register: mock_logs
+
+- name: Copy the mock logs to the workspace directory
+  copy:
+    src: "{{ item }}"
+    dest: "{{ workspace }}/mock_log-{{ item | basename }}"
+    remote_src: yes
+  loop: "{{ mock_logs.files | map(attribute='path') | list }}"
 
 - name: Create a repo from the RPMs
   command: "createrepo_c {{ yum_repo_dir }}"
