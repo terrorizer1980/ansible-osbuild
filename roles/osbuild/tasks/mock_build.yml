@@ -47,7 +47,7 @@
     repo: "https://github.com/osbuild/{{ item.repo_name }}"
     dest: "{{ git_repos_dir }}/{{ item.repo_name }}"
     version: "{{ item.version }}"
-    refspec: "+refs/pull/*:refs/heads/*"
+    refspec: "+refs/pull/*:refs/remotes/origin/pr/*"
   loop:
     - repo_name: osbuild
       version: "{{ osbuild_version }}"
