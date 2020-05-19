@@ -36,7 +36,7 @@ pipeline {
                 }
 
                 stage('RHEL 8.2 (mock)') {
-                   agent { label "rhel82" }
+                    agent { label "rhel82" }
                     steps {
                         run_tests()
                     }

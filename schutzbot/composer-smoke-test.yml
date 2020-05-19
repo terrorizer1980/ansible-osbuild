@@ -1,0 +1,56 @@
+---
+
+- hosts: localhost
+  # RHEL 8.2 requires root access for using composer-cli.
+  become: yes
+  tasks:
+
+    - name: Verify that sources are set up
+      command: composer-cli sources list
+
+    - name: Write a simple blueprint with only bash inside
+      copy:
+        dest: /tmp/blueprint.toml
+        content: |
+          name = "bash"
+          description = "A base system with bash"
+          version = "0.0.1"
+
+          [[packages]]
+          name = "bash"
+
+    - name: Push the blueprint into osbuild-composer
+      command: composer-cli blueprints push /tmp/blueprint.toml
+
+    - name: Get a list of the blueprints loaded
+      command: composer-cli blueprints list
+      register: blueprint_list
+
+    - name: Fail if the blueprint is missing
+      fail:
+        msg: Our blueprint is not loaded.
+      when: "'bash' not in blueprint_list.stdout"
+
+    - name: Depsolve the blueprint
+      command: composer-cli blueprints depsolve bash
+
+    - name: Build the image
+      command: composer-cli compose start bash ext4-filesystem
+
+    - name: List the composes
+      command: composer-cli compose list
+      register: compose_list
+
+    - name: Set a fact for the compose UUID
+      set_fact:
+        compose_uuid: "{{ compose_list.stdout.split(' ') | first }}"
+
+    - name: Wait for the image to finish building
+      command: composer-cli compose list
+      register: building_output
+      until: "'FINISHED' in building_output.stdout"
+      retries: 40
+      delay: 15
+
+    - name: Download the image we built
+      command: "composer-cli compose image {{ compose_uuid }}"
