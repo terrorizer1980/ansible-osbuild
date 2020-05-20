@@ -3,7 +3,6 @@ pipeline {
 
     options {
         ansiColor('xterm')
-        // parallelsAlwaysFailFast()
         timestamps()
     }
 
@@ -11,8 +10,11 @@ pipeline {
         stage("Test") {
             parallel {
 
-                stage('Fedora 31 (mock)') {
+                stage('Fedora 31') {
                     agent { label "fedora31" }
+                    environment {
+                        EXTRA_VARS = "-e install_source=os"
+                    }
                     steps {
                         run_tests()
                     }
@@ -23,8 +25,11 @@ pipeline {
                     }
                 }
 
-                stage('Fedora 32 (mock)') {
+                stage('Fedora 32') {
                     agent { label "fedora32" }
+                    environment {
+                        EXTRA_VARS = "-e install_source=os"
+                    }
                     steps {
                         run_tests()
                     }
@@ -35,20 +40,8 @@ pipeline {
                     }
                 }
 
-                stage('RHEL 8.2 (mock)') {
+                stage('RHEL 8.2') {
                     agent { label "rhel82" }
-                    steps {
-                        run_tests()
-                    }
-                    post {
-                        always {
-                            preserve_logs('rhel82-mock')
-                        }
-                    }
-                }
-
-                stage('Fedora 32 (os)') {
-                    agent { label "fedora32" }
                     environment {
                         EXTRA_VARS = "-e install_source=os"
                     }
@@ -57,7 +50,7 @@ pipeline {
                     }
                     post {
                         always {
-                            preserve_logs('fedora32-os')
+                            preserve_logs('rhel82-mock')
                         }
                     }
                 }
