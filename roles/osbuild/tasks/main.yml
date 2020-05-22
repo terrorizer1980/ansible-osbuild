@@ -3,17 +3,11 @@
 # Dump diagnostic information.
 - import_tasks: diagnostics.yml
 
-# Build osbuild/osbuild-composer using mock.
-- import_tasks: mock_build.yml
-  when: install_source == 'mock'
-
-# Install RPMs built in our mock chroot.
-- import_tasks: install_mock.yml
-  when: install_source == 'mock'
+# Prepare to install packages.
+- import_tasks: pre_install.yml
 
 # Install RPMs from the operating system repositories.
-- import_tasks: install_os.yml
-  when: install_source == 'os'
+- import_tasks: install.yml
 
 # Bring up services and verify connectivity
 - import_tasks: post_install.yml
