@@ -71,7 +71,7 @@
 
     - name: Fail if image build failed
       fail:
-        var: status_check
+        msg: "{{ status_check }}"
       when: "'FINISHED' not in building_output.stdout"
 
     - name: Download the image we built
