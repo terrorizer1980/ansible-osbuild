@@ -59,9 +59,9 @@
         compose_uuid: "{{ compose_list.stdout.split(' ') | first }}"
 
     - name: Wait for the image to finish building
-      command: composer-cli compose list
+      command: composer-cli --json compose status
       register: building_output
-      until: "'RUNNING' not in building_output.stdout"
+      until: ((building_output.stdout | from_json) | first).status not in ['RUNNING', 'WAITING']
       retries: 40
       delay: 15
 
