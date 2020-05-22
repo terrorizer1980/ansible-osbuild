@@ -48,9 +48,18 @@
     - name: Wait for the image to finish building
       command: composer-cli compose list
       register: building_output
-      until: "'FINISHED' in building_output.stdout"
+      until: "'RUNNING' not in building_output.stdout"
       retries: 40
       delay: 15
+
+    - name: Check status of image
+      command: composer-cli compose status
+      register: status_check
+
+    - name: Fail if image build failed
+      fail:
+        var: status_check
+      when: "'FINISHED' not in building_output.stdout"
 
     - name: Download the image we built
       command: "composer-cli compose image {{ compose_uuid }}"

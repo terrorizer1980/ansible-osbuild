@@ -10,7 +10,7 @@
     state: stopped
     enabled: no
   become: yes
-  when: "'{{ item }}' in systemd_units.stdout"
+  when: item in systemd_units.stdout
   loop:
     - cockpit-socket
     - osbuild-composer.socket
