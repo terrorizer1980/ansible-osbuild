@@ -5,6 +5,19 @@
   become: yes
   tasks:
 
+    - name: Deploy custom repositories that use internal mirrors
+      copy:
+        src: "repositories/{{ item }}"
+        dest: /usr/share/osbuild-composer/repositories/
+      loop:
+        - fedora-31.json
+        - fedora-32.json
+
+    - name: Stop osbuild-composer if it is running
+      systemd:
+        name: osbuild-composer.service
+        state: stopped
+
     - name: Verify that sources are set up
       command: composer-cli sources list
 
@@ -46,9 +59,9 @@
         compose_uuid: "{{ compose_list.stdout.split(' ') | first }}"
 
     - name: Wait for the image to finish building
-      command: composer-cli compose list
+      command: composer-cli --json compose status
       register: building_output
-      until: "'RUNNING' not in building_output.stdout"
+      until: ((building_output.stdout | from_json) | first).status not in ['RUNNING', 'WAITING']
       retries: 40
       delay: 15
 
@@ -58,7 +71,7 @@
 
     - name: Fail if image build failed
       fail:
-        var: status_check
+        msg: "{{ status_check }}"
       when: "'FINISHED' not in building_output.stdout"
 
     - name: Download the image we built
