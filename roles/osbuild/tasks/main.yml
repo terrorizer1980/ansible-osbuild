@@ -1,13 +1,16 @@
 ---
 
-# Dump diagnostic information.
-- import_tasks: diagnostics.yml
+# Run preflight checks.
+- import_tasks: preflight.yml
 
 # Prepare to install packages.
 - import_tasks: pre_install.yml
 
 # Install RPMs from the operating system repositories.
 - import_tasks: install.yml
+
+# Set up CA certificates on composer system.
+- import_tasks: certificates-composer.yml
 
 # Bring up services and verify connectivity
 - import_tasks: post_install.yml

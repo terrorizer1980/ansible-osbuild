@@ -1,0 +1,26 @@
+---
+
+- name: Show details about the system
+  debug:
+    msg: |
+      System details:
+        - Hostname: "{{ ansible_hostname }}"
+        - IP address: "{{ ansible_default_ipv4.address }}"
+        - CPUs: "{{ ansible_processor_vcpus }}"
+        - Arch: "{{ ansible_architecture }}"
+
+- name: Stop if we have more than one composer defined
+  fail:
+    msg: |
+      You have more than one composer host configured. This playbook only
+      works if a single composer host is specified.
+
+      {{ groups['composer'] }}
+  when:
+    - groups['composer'] | length > 1
+
+- name: Create osbuild-composer configuration directory
+  file:
+    path: /etc/osbuild-composer
+    state: directory
+  become: yes

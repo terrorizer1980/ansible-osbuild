@@ -1,18 +1,14 @@
 ---
 
-- name: Get list of systemd units
-  command: systemctl list-unit-files --no-legend --no-page
-  register: systemd_units
+- name: Deploy /etc/hosts configuration
+  blockinfile:
+    path: /etc/hosts
+    block: |
+      # Composer host
+      {{ ansible_default_ipv4.address }} composer
 
-- name: Disable services
-  systemd:
-    name: "{{ item }}"
-    state: stopped
-    enabled: no
+      # Workers
+      {% for worker_hostname in groups['workers'] %}
+      {{ hostvars[worker_hostname].ansible_default_ipv4.address }} worker{{ loop.index0 }}
+      {% endfor %}
   become: yes
-  when: item in systemd_units.stdout
-  loop:
-    - cockpit-socket
-    - osbuild-composer.socket
-    - osbuild-rcm.socket
-    - osbuild-composer.service
