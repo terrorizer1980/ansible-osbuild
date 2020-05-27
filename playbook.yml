@@ -1,24 +1,24 @@
 ---
 
-- hosts: test_instances
+# We need to convert the legacy inventory (all servers in test_instances
+# group) to the new style with composer/workers groups.
+- name: Migrate inventory to new format
+  hosts: test_instances
+  tasks:
+
+    - name: Convert legacy inventory
+      add_host:
+        hostname: "{{ groups['test_instances'][0] }}"
+        groups: "{{ item }}"
+      loop:
+        - composer
+        - workers
+
+- name: Deploy with remote workers
+  hosts: "composer:workers"
   vars_files:
     - vars.yml
   pre_tasks:
-
-    - name: Enable fastestmirror on Fedora
-      ini_file:
-        path: /etc/dnf/dnf.conf
-        section: main
-        option: "{{ item.option }}"
-        value: "{{ item.value }}"
-      become: yes
-      loop:
-        - option: fastestmirror
-          value: "1"
-        - option: install_weak_deps
-          value: "0"
-      when:
-        - ansible_distribution == 'Fedora'
 
     - name: Install ssh keys
       authorized_key:

@@ -1,7 +1,7 @@
 ---
 
-- hosts: localhost
-  # RHEL 8.2 requires root access for using composer-cli.
+- name: Run post-deployment smoke tests
+  hosts: localhost
   become: yes
   tasks:
 
