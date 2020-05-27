@@ -40,8 +40,8 @@ pipeline {
                     }
                 }
 
-                stage('RHEL 8.2') {
-                    agent { label "rhel82" }
+                stage('RHEL 8 CDN') {
+                    agent { label "rhel8" }
                     environment {
                         EXTRA_VARS = "-e install_source=os"
                     }
@@ -50,7 +50,7 @@ pipeline {
                     }
                     post {
                         always {
-                            preserve_logs('rhel82')
+                            preserve_logs('rhel8')
                         }
                     }
                 }
