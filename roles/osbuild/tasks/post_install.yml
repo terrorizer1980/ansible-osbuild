@@ -31,6 +31,14 @@
     - osbuild-composer.service
     - osbuild-remote-worker.socket
 
+- name: Start osbuild-rcm socket
+  systemd:
+    name: osbuild-rcm.socket
+    state: started
+    enabled: yes
+  become: yes
+  when: "'composer' in group_names"
+
 - name: Start osbuild-composer's remote worker socket
   systemd:
     name: osbuild-remote-worker.socket

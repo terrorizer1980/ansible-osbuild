@@ -48,7 +48,7 @@
       command: composer-cli blueprints depsolve bash
 
     - name: Build the image
-      command: composer-cli compose start bash ext4-filesystem
+      command: composer-cli compose start bash ami
 
     - name: List the composes
       command: composer-cli compose list
