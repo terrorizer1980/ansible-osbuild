@@ -6,7 +6,6 @@
       System details:
         - Hostname: "{{ ansible_hostname }}"
         - IP address: "{{ ansible_default_ipv4.address }}"
-        - CPUs: "{{ ansible_processor_vcpus }}"
         - Arch: "{{ ansible_architecture }}"
 
 - name: Stop if we have more than one composer defined
