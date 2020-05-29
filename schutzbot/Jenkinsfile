@@ -10,35 +10,35 @@ pipeline {
         stage("Test") {
             parallel {
 
-                stage('Fedora 31') {
-                    agent { label "fedora31" }
-                    environment {
-                        EXTRA_VARS = "-e install_source=os"
-                    }
-                    steps {
-                        run_tests()
-                    }
-                    post {
-                        always {
-                            preserve_logs('fedora31')
-                        }
-                    }
-                }
+                // stage('Fedora 31') {
+                //     agent { label "fedora31" }
+                //     environment {
+                //         EXTRA_VARS = "-e install_source=os"
+                //     }
+                //     steps {
+                //         run_tests()
+                //     }
+                //     post {
+                //         always {
+                //             preserve_logs('fedora31')
+                //         }
+                //     }
+                // }
 
-                stage('Fedora 32') {
-                    agent { label "fedora32" }
-                    environment {
-                        EXTRA_VARS = "-e install_source=os"
-                    }
-                    steps {
-                        run_tests()
-                    }
-                    post {
-                        always {
-                            preserve_logs('fedora32')
-                        }
-                    }
-                }
+                // stage('Fedora 32') {
+                //     agent { label "fedora32" }
+                //     environment {
+                //         EXTRA_VARS = "-e install_source=os"
+                //     }
+                //     steps {
+                //         run_tests()
+                //     }
+                //     post {
+                //         always {
+                //             preserve_logs('fedora32')
+                //         }
+                //     }
+                // }
 
                 stage('RHEL 8 CDN') {
                     agent { label "rhel8" }
