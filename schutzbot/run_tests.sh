@@ -16,7 +16,8 @@ source /etc/os-release
 
 # Get the latest master artifacts from osbuild-composer.
 REPO_BASE_URL=https://rhos-d.infra.prod.upshift.rdu2.redhat.com:13808/v1/AUTH_95e858620fb34bcc9162d9f52367a560/osbuildci-artifacts
-CI_ARTIFACTS=$(curl -sk ${REPO_BASE_URL}/ | egrep -o "jenkins-osbuild-osbuild-composer-master-[0-9]+" | tail -n 1)
+# CI_ARTIFACTS=$(curl -sk ${REPO_BASE_URL}/ | egrep -o "jenkins-osbuild-osbuild-composer-master-[0-9]+" | tail -n 1)
+CI_ARTIFACTS=jenkins-osbuild-osbuild-composer-release-version-13-1
 
 # Set up a dnf repository for a previously built known working package of
 # osbuild and osbuild-composer.
