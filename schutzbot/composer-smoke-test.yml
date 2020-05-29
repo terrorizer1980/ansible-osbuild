@@ -3,7 +3,22 @@
 - name: Run post-deployment smoke tests
   hosts: localhost
   become: yes
+  vars:
+    distro_users:
+      RedHat: cloud-user
+      Fedora: fedora
   tasks:
+
+    - name: Install packages to boot the image
+      dnf:
+        name:
+          - "@Virtualization Host"
+          - htop
+          - virt-install
+        state: present
+      async: 600
+      poll: 0
+      register: dnf_install
 
     - name: Deploy custom repositories that use internal mirrors
       copy:
@@ -48,31 +63,118 @@
       command: composer-cli blueprints depsolve bash
 
     - name: Build the image
-      command: composer-cli compose start bash ami
-
-    - name: List the composes
-      command: composer-cli compose list
-      register: compose_list
+      command: composer-cli --json compose start bash qcow2
+      register: compose_start
 
     - name: Set a fact for the compose UUID
       set_fact:
-        compose_uuid: "{{ compose_list.stdout.split(' ') | first }}"
+        compose_uuid: "{{ output_json.build_id }}"
+      vars:
+        output_json: "{{ compose_start.stdout | from_json }}"
 
     - name: Wait for the image to finish building
-      command: composer-cli --json compose status
-      register: building_output
-      until: ((building_output.stdout | from_json) | first).status not in ['RUNNING', 'WAITING']
+      command: "composer-cli --json compose info {{ compose_uuid }}"
+      register: info_out
+      until: (info_out.stdout | from_json).queue_status not in ['RUNNING', 'WAITING']
       retries: 40
       delay: 15
 
-    - name: Check status of image
-      command: composer-cli compose status
-      register: status_check
+    - name: Check the final status of the compose
+      command: "composer-cli --json compose info {{ compose_uuid }}"
+      register: info_out
 
     - name: Fail if image build failed
       fail:
-        msg: "{{ status_check }}"
-      when: "'FINISHED' not in building_output.stdout"
+        var: info_out.stdout | from_json
+      when: (info_out.stdout | from_json).queue_status != "FINISHED"
 
     - name: Download the image we built
       command: "composer-cli compose image {{ compose_uuid }}"
+
+    - name: Ensure virtualization packages have finished installing.
+      async_status:
+        jid: "{{ dnf_install.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 120
+      delay: 5
+
+    - name: Start libvirtd
+      systemd:
+        name: libvirtd
+        state: started
+        enabled: yes
+
+    - name: Create ssh key
+      openssh_keypair:
+        path: /tmp/sshkey
+      become: no
+
+    - name: Write cloud-init user-data
+      copy:
+        dest: /tmp/user-data
+        content: |
+          #cloud-config
+          ssh_authorized_keys:
+            - {{ lookup('file', '/tmp/sshkey.pub') }}
+
+    - name: Write cloud-init meta-data
+      copy:
+        dest: /tmp/meta-data
+        content: |
+          instance-id: testing
+
+    - name: Create cloud-init ISO
+      command: genisoimage -o /tmp/cloud-init.iso -V cidata -r -J user-data meta-data
+      args:
+        chdir: /tmp
+
+    - name: Run virt-install to import qcow
+      command: |
+        virt-install \
+          --name composer-test \
+          --memory 1024 \
+          --vcpus 2 \
+          --disk path={{ compose_uuid }}-disk.qcow2 \
+          --disk path=/tmp/cloud-init.iso,device=cdrom \
+          --import \
+          --os-variant linux \
+          --noautoconsole \
+          --network network=default
+      become: yes
+
+    - name: Get address of the new VM (takes time while it boots)
+      command: virsh domifaddr composer-test
+      become: yes
+      register: vm_address_check
+      until: vm_address_check.stdout | regex_search("[0-9\.]*/24")
+      retries: 60
+      delay: 5
+
+    - name: Get the IP address for the VM we just started
+      set_fact:
+        vm_ip: "{{ vm_address_check.stdout | regex_findall(\"([0-9\\.]*)/24\") | first }}"
+
+    - name: "Wait for the ssh daemon to start on {{ vm_ip }}"
+      wait_for:
+        host: "{{ vm_ip }}"
+        port: 22
+        timeout: 300
+
+    - name: "Add a dynamic host for the VM on {{ vm_ip }}"
+      add_host:
+        name: test_vm
+        group: booted_instances
+        ansible_host: "{{ vm_ip }}"
+        ansible_user: cloud-user
+        ansible_ssh_pipelining: yes
+
+- hosts: booted_instances
+  become: yes
+  vars:
+    ansible_private_key_file: /tmp/sshkey
+  tasks:
+
+    - name: Verify we are in the guest
+      debug:
+        var: ansible_default_ipv4
