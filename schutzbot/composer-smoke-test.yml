@@ -8,8 +8,23 @@
     - name: Install packages to boot the image
       dnf:
         name:
-          - "@Virtualization{{ (ansible_distribution == 'RedHat') | ternary (' Host', '') }}"
           - htop
+          - libvirt
+          - libvirt-client
+          - libvirt-daemon
+          - libvirt-daemon-config-network
+          - libvirt-daemon-config-nwfilter
+          - libvirt-daemon-driver-interface
+          - libvirt-daemon-driver-network
+          - libvirt-daemon-driver-nodedev
+          - libvirt-daemon-driver-nwfilter
+          - libvirt-daemon-driver-qemu
+          - libvirt-daemon-driver-secret
+          - libvirt-daemon-driver-storage
+          - libvirt-daemon-driver-storage-disk
+          - libvirt-daemon-kvm
+          - qemu-img
+          - qemu-kvm
           - virt-install
         state: present
       async: 600
