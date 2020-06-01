@@ -3,16 +3,12 @@
 - name: Run post-deployment smoke tests
   hosts: localhost
   become: yes
-  vars:
-    distro_users:
-      RedHat: cloud-user
-      Fedora: fedora
   tasks:
 
     - name: Install packages to boot the image
       dnf:
         name:
-          - "@Virtualization Host"
+          - "@Virtualization{{ (ansible_distribution == 'RedHat') | ternary (' Host', '') }}"
           - htop
           - virt-install
         state: present
@@ -46,6 +42,9 @@
 
           [[packages]]
           name = "bash"
+
+          [customizations.services]
+          enabled = ["sshd", "cloud-init", "cloud-init-local", "cloud-config", "cloud-final"]
 
     - name: Push the blueprint into osbuild-composer
       command: composer-cli blueprints push /tmp/blueprint.toml
@@ -108,24 +107,35 @@
     - name: Create ssh key
       openssh_keypair:
         path: /tmp/sshkey
+        comment: composer-test
       become: no
 
     - name: Write cloud-init user-data
       copy:
-        dest: /tmp/user-data
+        dest: /tmp/config.yaml
         content: |
           #cloud-config
-          ssh_authorized_keys:
-            - {{ lookup('file', '/tmp/sshkey.pub') }}
+          package_upgrade: false
+          users:
+            - name: redhat
+              groups: wheel
+              lock_passwd: false
+              passwd: $6$z2SpEKtNrsPuKVGj$wEXMnaFRjShqSQAvkRa42G5TTjnnoGd18fgMrIP9OHjGHvP7mfA4stSTSZTifaNnDw.WA8MxFkZgKWK282bDQ.
+              shell: /bin/bash
+              sudo: ['ALL=(ALL) NOPASSWD:ALL']
+              ssh_authorized_keys:
+                - {{ lookup('file', '/tmp/sshkey.pub') }}
 
-    - name: Write cloud-init meta-data
-      copy:
-        dest: /tmp/meta-data
-        content: |
-          instance-id: testing
+    - name: Download cloud-localds script
+      get_url:
+        url: https://git.launchpad.net/cloud-utils/plain/bin/cloud-localds
+        dest: /usr/local/bin/cloud-localds
+        owner: root
+        group: root
+        mode: '0755'
 
     - name: Create cloud-init ISO
-      command: genisoimage -o /tmp/cloud-init.iso -V cidata -r -J user-data meta-data
+      command: /usr/local/bin/cloud-localds config.iso config.yaml
       args:
         chdir: /tmp
 
@@ -136,7 +146,7 @@
           --memory 1024 \
           --vcpus 2 \
           --disk path={{ compose_uuid }}-disk.qcow2 \
-          --disk path=/tmp/cloud-init.iso,device=cdrom \
+          --disk path=/tmp/config.iso,device=cdrom \
           --import \
           --os-variant linux \
           --noautoconsole \
@@ -166,7 +176,7 @@
         name: test_vm
         group: booted_instances
         ansible_host: "{{ vm_ip }}"
-        ansible_user: cloud-user
+        ansible_user: redhat
         ansible_ssh_pipelining: yes
 
 - hosts: booted_instances
