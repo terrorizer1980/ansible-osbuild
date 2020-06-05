@@ -64,6 +64,9 @@ pipeline {
 // need to copy/paste the same lines over and over above.
 void run_tests() {
 
+    // Get CI machine details.
+    sh "schutzbot/ci_details.sh"
+
     // Run the tests from the repository.
     sh "schutzbot/run_tests.sh"
 
