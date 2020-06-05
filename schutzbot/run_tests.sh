@@ -15,16 +15,15 @@ trap "preserve_journal" ERR
 source /etc/os-release
 
 # Get the latest master artifacts from osbuild-composer.
-REPO_BASE_URL=https://rhos-d.infra.prod.upshift.rdu2.redhat.com:13808/v1/AUTH_95e858620fb34bcc9162d9f52367a560/osbuildci-artifacts
-# CI_ARTIFACTS=$(curl -sk ${REPO_BASE_URL}/ | egrep -o "jenkins-osbuild-osbuild-composer-master-[0-9]+" | tail -n 1)
-CI_ARTIFACTS=jenkins-osbuild-osbuild-composer-release-version-13-1
+MOCK_REPO_BASE_URL="http://osbuild-composer-repos.s3-website.us-east-2.amazonaws.com"
+CI_ARTIFACTS=osbuild/osbuild-composer/master/c866606
 
 # Set up a dnf repository for a previously built known working package of
 # osbuild and osbuild-composer.
 sudo tee /etc/yum.repos.d/osbuild-mock.repo > /dev/null << EOF
 [osbuild-mock]
-name=osbuild mock ${BUILD_TAG} ${ID}${VERSION_ID//./}
-baseurl=${REPO_BASE_URL}/${CI_ARTIFACTS}/${ID}${VERSION_ID//./}
+name=osbuild mock S3 repo
+baseurl=${MOCK_REPO_BASE_URL}/${CI_ARTIFACTS}/${ID}${VERSION_ID//./}
 enabled=1
 gpgcheck=0
 # Default dnf repo priority is 99. Lower number means higher priority.
