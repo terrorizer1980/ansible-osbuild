@@ -3,6 +3,7 @@
 # Set the default password to match the default username.
 password_hashes:
   "cloud-user": "$6$4NoiMXLSuKgYaQ/2$xlvgej/fnceUXjseJDWYQu1YI0ApaexYCVvs8xOCs6onxTRO7Yj3blD3IB/Axa4imdiFYkJHbg050oOFrGAa30"
+  "ec2-user": "$6$mysecretsalt$mk5W3WljQD76wm5QLGBszMynInx9Vt8tSzuHvkMtXhkQ/fotdbG220athsVnqYic2mKvpFIwtd5nR/LowqqHB/"
   "fedora": "$6$NAGA2hokAzys8r6O$woN3nQDy.8dykubJY5STQmVsiQt40FQiwTfxHsjmrc6LGU0F2NiR.Xq0/rqRFY5ywHzHIwnFognAzbI2yVd3i1"
   "root": "$6$wGqrsdAhocznBIUX$7uJoZHIsZc3yi93WtCPogdRz.Ov7du419N33DighEL1PMvMf78s0SYJJVXM8xAouA.xWHG4HK0.mpXsNb7ExC1"
 
